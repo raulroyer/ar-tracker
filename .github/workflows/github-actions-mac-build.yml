@@ -13,10 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - name: 'App'
-            platform:  'windows/amd64'
-            os: 'windows-latest'
-          - name: 'App'
+          - name: 'artracking'
             platform:  'darwin/universal'
             os: 'macos-latest'
 
