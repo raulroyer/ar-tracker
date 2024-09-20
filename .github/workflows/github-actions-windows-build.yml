@@ -1,4 +1,4 @@
-name: Wails build
+name: Wails windows build
 
 on: [workflow_dispatch]
 

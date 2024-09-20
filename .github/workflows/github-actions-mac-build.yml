@@ -1,4 +1,4 @@
-name: Wails build
+name: Wails mac build
 
 on: [workflow_dispatch]
 
