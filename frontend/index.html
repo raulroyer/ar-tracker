@@ -4,19 +4,429 @@
     <meta charset="UTF-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>artracking</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .top-container {
+            border: 1px solid green;
+            text-align: right;
+        }
+        ul {
+            display: inline-block;
+            padding: 10px;
+            border: 1px solid green;
+        }
+        .top-container #menu li {
+            display: inline-block;
+            /* border: 1px dashed black; */
+            padding: 5px 20px;
+            cursor: pointer;
+        }
+        .top-container #menu li[selected] {
+            background-color: rgb(222, 237, 242);
+        }
+
+        table {
+            width: 100%;
+        }
+
+        tbody tr:nth-child(2n+1) {
+            background-color: rgb(232, 241, 245);
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.5em;
+            /* border: 1px solid gray; */
+        }
+        td {
+            cursor: pointer;
+        }
+
+        .main-container .panel {
+            border: 1px solid red;
+            margin-bottom: 1em;
+            display: none;
+        }
+        .main-container .panel[open] {
+            display: block;
+        }
+
+        .panel-title {
+            float: left;
+            margin-left: 1em;
+        }
+
+        .add-btn-container {
+            text-align: right;
+        }
+        .panel-add-btn {
+            margin: 1em;
+        }
+
+        .custom-btn-1 {
+            background: none;
+            border: 2px solid rgb(72, 184, 244);
+            border-radius: 0.5em;
+            padding: 0.5em 1em;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1em;           
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            background-color: black;
+            opacity: 0.2;
+        }
+
+        .popup {
+            display: none;
+            position: absolute;
+            /* border: 1px solid rgb(72, 184, 244); */
+            border-radius: 0.5em;
+            background-color: white;
+            box-shadow: 0em 0em 1em gray;
+            z-index: 11;
+        }
+        .popup[open] {
+            display: inline-block;
+        }
+        .popup .popup-title {
+            display: inline-block;
+        }
+        .popup .close-btn {
+            float: right;
+            background: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 2em;
+            font-weight: bold;
+            border: none;
+            color: rgb(72, 184, 244);
+        }
+        .popup form label {
+            display: inline-block;
+        }
+        .popup form input {
+            margin-bottom: 1em;
+            border: 1px solid black;
+            border-radius: 0.2em;
+            height: 2.5em;
+        }
+        .popup form input[disabled] {
+            border: none;
+            background: rgb(237, 234, 223);
+        }
+
+        #partner-form-popup form {
+            width: 350px;
+            padding: 1.5em;
+        }
+        #partner-form-popup label {
+            width: 50px;
+        }
+        #partner-form-popup input {
+            width: 20em;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
-        
-        <img id="logo" class="logo">
+        <div class="top-container">
+            <ul id="menu">
+                <li class="tx-link">
+                    Transacciones
+                </li>
+                <li class="partners-link">
+                    Socios
+                </li>
+                <li class="report-link">
+                    Morosidad
+                </li>
+            </ul>
+        </div>
 
-        <div>
-            <textarea id="content-input" rows="8" cols="60"></textarea>
-            <button id="import-btn" class="btn">Import</button>
-            <button id="export-btn" class="btn">Export</button>
+        <div class="main-container">
+
+            <div id="tx-panel" class="panel">
+                <table>
+                    <caption>
+                        Transacciones
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Socio</th>
+                            <th>Tipo</th>
+                            <th>Método de pago</th>
+                            <th>Monto</th>
+                            <th>Recibo</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Raúl Royer</td>
+                            <td>Multa</td>
+                            <td>ACH</td>
+                            <td>34.65</td>
+                            <td>212446342</td>
+                            <td>2024/09/14</td>
+                        </tr>
+                        <tr>
+                            <td>Raúl Royer</td>
+                            <td>Multa</td>
+                            <td>ACH</td>
+                            <td>34.65</td>
+                            <td>212446342</td>
+                            <td>2024/09/14</td>
+                        </tr>
+                        <tr>
+                            <td>Raúl Royer</td>
+                            <td>Multa</td>
+                            <td>ACH</td>
+                            <td>34.65</td>
+                            <td>212446342</td>
+                            <td>2024/09/14</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="partners-panel" class="panel">
+                <div class="add-btn-container">
+                    <h3 class="panel-title">Socios</h3>
+                    <button class="panel-add-btn custom-btn-1">+ Agregar</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Raúl Royer</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Raúl Royer</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Raúl Royer</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="report-panel" class="panel">
+                <table>
+                    <caption>
+                        Reporte de Morosidad
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Último pago</th>
+                            <th>Monto del pago</th>
+                            <th>Meses pendientes</th>
+                            <th>Monto pendiente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Raúl Royer</td>
+                            <td>Agosto 2024</td>
+                            <td>Junio</td>
+                            <td>Julio, Agosto</td>
+                            <td>16.30</td>
+                        </tr>
+                        <tr>
+                            <td>Raúl Royer</td>
+                            <td>Agosto 2024</td>
+                            <td>Junio</td>
+                            <td>Julio, Agosto</td>
+                            <td>16.30</td>
+                        </tr>
+                        <tr>
+                            <td>Raúl Royer</td>
+                            <td>Agosto 2024</td>
+                            <td>Junio</td>
+                            <td>Julio, Agosto</td>
+                            <td>16.30</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="overlay"></div>
+
+            <div id="partner-form-popup" class="popup">
+                <span class="popup-title">Socio</span>
+                <button class="close-btn">&#10006;</button>
+                <form>
+                    <label>ID</label>
+                    <input class="id-input" type="text" disabled />
+                    <br/>
+                    <label>Nombre</label>
+                    <input class="name-input" type="text" />
+                    <br/>
+                    <button class="btn-save custom-btn-1">Guardar</button>
+                </form>
+            </div>
         </div>
         
     </div>
-    <script src="./src/main.js" type="module"></script>
+    <script>
+        var model = {
+            partners: [
+                { id: 1, name: "Raúl Royer" },
+                { id: 2, name: "Lamine Yamal" },
+                { id: 3, name: "Ferran Torres" }
+            ],
+            currentPartner: { id: null, name: "" }
+        };
+
+
+        // MENU NAVIGATION
+        function setOpenedPanel (key) {
+            var selectedPanel;
+            switch (key) {
+                case "tx":
+                    selectedPanel = txPanel;
+                    break;
+                case "partners":
+                    selectedPanel = partnersPanel;
+                    break;
+                case "report":
+                    selectedPanel = reportPanel;
+                    break;
+                default:
+                    break;
+            }
+
+            if (currentPanel) {
+                currentPanel.removeAttribute("open");
+            }
+            selectedPanel.setAttribute("open", "");
+            currentPanel = selectedPanel;
+
+        }
+        function setSelectedMenuLink (linkNode) {
+            txLink.removeAttribute("selected");
+            partnersLink.removeAttribute("selected");
+            reportLink.removeAttribute("selected");
+
+            linkNode.setAttribute("selected", "");
+        }
+
+        var txLink = document.querySelector(".tx-link");
+        var partnersLink = document.querySelector(".partners-link");
+        var reportLink = document.querySelector(".report-link");
+
+        var txPanel = document.querySelector("#tx-panel");
+        var partnersPanel = document.querySelector("#partners-panel");
+        var reportPanel = document.querySelector("#report-panel");
+        var currentPanel;
+
+        txLink.addEventListener("click", (evt) => {
+            setOpenedPanel("tx");
+            setSelectedMenuLink(evt.target);
+        });
+
+        partnersLink.addEventListener("click", (evt) => {
+            setOpenedPanel("partners");
+            setSelectedMenuLink(evt.target);
+        });
+
+        reportLink.addEventListener("click", (evt) => {
+            setOpenedPanel("report");
+            setSelectedMenuLink(evt.target);
+        });
+
+
+        // FORM POPUP
+        function openFormPopup (popup, anchorNode) {
+            overlay.style.display = "block";
+
+            popup.setAttribute("open", "");
+            popup.style.left = `${anchorNode.getBoundingClientRect().right - popup.getBoundingClientRect().width}px`;
+            popup.style.top = `${anchorNode.getBoundingClientRect().bottom + 5}px`;
+
+            currentPopup = popup;
+        }
+        function closeFormPopup () {
+            if (currentPopup) {
+                currentPopup.removeAttribute("open");
+                overlay.style.display = "none";
+
+                currentPopup = undefined;
+            }
+        }
+
+        var overlay = document.querySelector("#overlay");
+        var currentPopup;
+
+        document.querySelectorAll(".popup .close-btn").forEach((node) => {
+            node.addEventListener("click", () => {
+                closeFormPopup();
+            });
+        });
+        overlay.addEventListener("click", closeFormPopup);
+
+
+        // TABLE
+        function clearTable (table) {
+            var tbody = table.querySelector("tbody");
+            while(tbody.hasChildNodes()) {
+                tbody.removeChild(tbody.firstChild);
+            }
+        }
+
+        // PARTNERS
+        function loadPartners () {
+            clearTable(partnersTable);
+            var tbody = partnersTable.querySelector("tbody");
+
+            for (var i = 0; i < model.partners.length; i++) {
+                var tr = document.createElement("tr");
+                tr.innerHTML = `<td>${model.partners[i].id}</td><td>${model.partners[i].name}</td>`;
+                tbody.appendChild(tr);
+            }
+        }
+
+        var partnersTable = partnersPanel.querySelector("table");
+        var addPartnerBtn = document.querySelector("#partners-panel .panel-add-btn");
+        var partnerFormPopup = document.querySelector("#partner-form-popup");
+        loadPartners();
+
+        addPartnerBtn.addEventListener("click", () => {
+            openFormPopup(partnerFormPopup, addPartnerBtn);
+            overlay.style.display = "block";
+        });
+
+
+        // document.querySelectorAll("#partners-panel td").forEach((node) => {
+        //     node.addEventListener("click", () => {
+        //         partnerPopup.setAttribute("open", "");
+        //     });
+        // });
+
+        // document.querySelector("#partner-form-popup .close-btn").addEventListener("click", () => {
+        //     partnerFormPopup.removeAttribute("open");
+        // });
+
+    </script>
 </body>
 </html>

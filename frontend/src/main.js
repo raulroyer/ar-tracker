@@ -26,3 +26,8 @@ document.querySelector("#import-btn").addEventListener("click", () => {
 
     });
 });
+
+document.querySelector("#nav-btn").addEventListener("click", () => {
+    textarea.value = `${window.location.origin}/index2.html`;
+    window.location.href = `${window.location.origin}/index2.html`;
+});
