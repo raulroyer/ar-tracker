@@ -1,0 +1,144 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+.top-container {
+    border: 1px solid green;
+    text-align: right;
+}
+ul {
+    display: inline-block;
+    padding: 10px;
+    border: 1px solid green;
+}
+.top-container #menu li {
+    display: inline-block;
+    /* border: 1px dashed black; */
+    padding: 5px 20px;
+    cursor: pointer;
+}
+.top-container #menu li[selected] {
+    background-color: rgb(222, 237, 242);
+}
+
+table {
+    width: 100%;
+}
+
+tbody tr:nth-child(2n+1) {
+    background-color: rgb(232, 241, 245);
+}
+
+th, td {
+    text-align: left;
+    padding: 0.5em;
+    /* border: 1px solid gray; */
+}
+td.btns-td {
+    text-align: right;
+}
+td.btns-td button {
+    padding: 0.1em 0.5em;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+
+.main-container .panel {
+    border: 1px solid red;
+    margin-bottom: 1em;
+    display: none;
+}
+.main-container .panel[open] {
+    display: block;
+}
+
+.panel-title {
+    float: left;
+    margin-left: 1em;
+}
+
+.add-btn-container {
+    text-align: right;
+}
+.panel-add-btn {
+    margin: 1em;
+}
+
+.custom-btn-1 {
+    background: none;
+    border: 2px solid rgb(72, 184, 244);
+    border-radius: 0.5em;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1em;           
+}
+
+#overlay {
+    display: none;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: black;
+    opacity: 0.2;
+}
+
+.popup {
+    display: none;
+    position: absolute;
+    /* border: 1px solid rgb(72, 184, 244); */
+    border-radius: 0.5em;
+    background-color: white;
+    box-shadow: 0em 0em 1em gray;
+    z-index: 11;
+}
+.popup .popup-title {
+    display: inline-block;
+    font-size: 1.5em;
+    margin: 1em 0em 0em 1em;
+    color: rgb(9 122 182);
+}
+.popup .close-btn {
+    float: right;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 2em;
+    font-weight: bold;
+    border: none;
+    color: rgb(72, 184, 244);
+}
+.popup form label {
+    display: inline-block;
+}
+.popup form input {
+    margin-bottom: 1em;
+    border: 1px solid black;
+    border-radius: 0.2em;
+    height: 2em;
+    font-size: 1em;
+    padding-left: 0.5em;
+    outline: none;
+}
+.popup form input[disabled] {
+    border: none;
+    background: rgb(237, 234, 223);
+}
+.popup .btn-container {
+    text-align: right;
+}
+
+#partner-form-popup form {
+    width: 350px;
+    padding: 1.5em;
+}
+#partner-form-popup label {
+    width: 50px;
+}
+#partner-form-popup input {
+    width: 20em;
+}
