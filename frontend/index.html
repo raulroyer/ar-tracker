@@ -71,6 +71,8 @@
             <div id="partners-panel" class="panel">
                 <div class="add-btn-container">
                     <h3 class="panel-title">Socios</h3>
+                    <label class="custom-input-label-1">&#128269;</label>
+                    <input type="text" class="filter-input custom-input-1" />
                     <button class="panel-add-btn custom-btn-1">+ Agregar</button>
                 </div>
                 <table>
@@ -83,8 +85,11 @@
                     <tbody>
                         <tr>
                             <td>1</td>
-                            <td>Placeholder for name</td>
-                            <td class="btns-td"><button>&#9998;</button></td>
+                            <td class="name-td">Placeholder for name</td>
+                            <td class="btns-td">
+                                <button data-partner-id="1" class="edit-btn custom-btn-1">&#x270E;</button>
+                                <button data-partner-id="1" class="delete-btn custom-btn-1">&#10006;</button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -135,21 +140,31 @@
             <div id="partner-form-popup" class="popup">
                 <span class="popup-title">Socio</span>
                 <button class="close-btn">&#10006;</button>
-                <form>
-                    <label>ID</label>
-                    <input class="id-input" type="text" disabled />
+                <div class="form">
+                    <label class="custom-input-label-1">ID</label>
+                    <input class="id-input custom-input-1" type="text" disabled />
                     <br/>
-                    <label>Nombre</label>
-                    <input class="name-input" type="text" />
+                    <label class="custom-input-label-1">Nombre</label>
+                    <input class="name-input custom-input-1" type="text" />
                     <br/>
                     <div class="btn-container">
                         <button class="btn-save custom-btn-1">Guardar</button>
                     </div>
-                </form>
+                </div>
+            </div>
+
+            <div id="confirmation-popup" class="popup">
+                <span class="confirm-message">????</span>
+                <div class="btn-container">
+                    <button class="confirm-btn custom-btn-1">Aceptar</button>
+                    <button class="discard-btn custom-btn-1">Descartar</button>
+                </div>
             </div>
         </div>
         
     </div>
-    <script src="./src/index.js"></script>
+    <!-- <script src="./src/index.js"></script> -->
+    <script src="./src/js/index.js"></script>
+    <script src="./src/js/partners.js"></script>
 </body>
 </html>

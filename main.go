@@ -20,6 +20,8 @@ func main() {
 		Title:  "artracking",
 		Width:  1024,
 		Height: 568,
+		MinWidth: 1024,
+		MinHeight: 568,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

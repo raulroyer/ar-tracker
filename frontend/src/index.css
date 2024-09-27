@@ -21,6 +21,13 @@ ul {
     background-color: rgb(222, 237, 242);
 }
 
+.filter-input::after {
+    content: 'x'
+}
+.test::after {
+    content: '111';
+}
+
 table {
     width: 100%;
 }
@@ -65,16 +72,6 @@ td.btns-td button {
     margin: 1em;
 }
 
-.custom-btn-1 {
-    background: none;
-    border: 2px solid rgb(72, 184, 244);
-    border-radius: 0.5em;
-    padding: 0.5em 1em;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 1em;           
-}
-
 #overlay {
     display: none;
     position: fixed;
@@ -112,10 +109,25 @@ td.btns-td button {
     border: none;
     color: rgb(72, 184, 244);
 }
-.popup form label {
+.popup .btn-container {
+    text-align: right;
+}
+
+
+.custom-btn-1 {
+    background: none;
+    border: 2px solid rgb(72, 184, 244);
+    border-radius: 0.5em;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1em;
+}
+
+.custom-input-label-1 {
     display: inline-block;
 }
-.popup form input {
+.custom-input-1 {
     margin-bottom: 1em;
     border: 1px solid black;
     border-radius: 0.2em;
@@ -124,15 +136,23 @@ td.btns-td button {
     padding-left: 0.5em;
     outline: none;
 }
-.popup form input[disabled] {
+.custom-input-1[disabled] {
     border: none;
     background: rgb(237, 234, 223);
 }
-.popup .btn-container {
-    text-align: right;
+
+
+#confirmation-popup {
+    width: 400px;
+    padding: 1.5em;
+}
+#confirmation-popup .confirm-message {
+    display: inline-block;
+    margin-bottom: 1em;
 }
 
-#partner-form-popup form {
+
+#partner-form-popup div.form {
     width: 350px;
     padding: 1.5em;
 }
