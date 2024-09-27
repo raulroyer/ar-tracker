@@ -109,6 +109,12 @@ td.btns-td button {
     border: none;
     color: rgb(72, 184, 244);
 }
+.popup input {
+    width: 20em;
+}
+.popup textarea {
+    width: 24em;
+}
 .popup .btn-container {
     text-align: right;
 }
@@ -136,6 +142,9 @@ td.btns-td button {
     padding-left: 0.5em;
     outline: none;
 }
+textarea.custom-input-1 {
+    height: 5em;
+}
 .custom-input-1[disabled] {
     border: none;
     background: rgb(237, 234, 223);
@@ -159,6 +168,11 @@ td.btns-td button {
 #partner-form-popup label {
     width: 50px;
 }
-#partner-form-popup input {
-    width: 20em;
+
+#tx-form-popup div.form {
+    width: 345px;
+    padding: 1.5em;
+}
+#tx-form-popup label {
+    width: 50px;
 }

@@ -25,44 +25,35 @@
         <div class="main-container">
 
             <div id="tx-panel" class="panel">
+                <div class="add-btn-container">
+                    <h3 class="panel-title">Transacciones</h3>
+                    <label class="custom-input-label-1">&#128269;</label>
+                    <input type="text" class="filter-input custom-input-1" />
+                    <button class="panel-add-btn custom-btn-1">+ Agregar</button>
+                </div>
                 <table>
-                    <caption>
-                        Transacciones
-                    </caption>
                     <thead>
                         <tr>
+                            <th>Recibo</th>
                             <th>Socio</th>
                             <th>Tipo</th>
                             <th>Método de pago</th>
                             <th>Monto</th>
-                            <th>Recibo</th>
                             <th>Fecha</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Raúl Royer</td>
-                            <td>Multa</td>
-                            <td>ACH</td>
-                            <td>34.65</td>
-                            <td>212446342</td>
-                            <td>2024/09/14</td>
-                        </tr>
-                        <tr>
-                            <td>Raúl Royer</td>
-                            <td>Multa</td>
-                            <td>ACH</td>
-                            <td>34.65</td>
-                            <td>212446342</td>
-                            <td>2024/09/14</td>
-                        </tr>
-                        <tr>
-                            <td>Raúl Royer</td>
-                            <td>Multa</td>
-                            <td>ACH</td>
-                            <td>34.65</td>
-                            <td>212446342</td>
-                            <td>2024/09/14</td>
+                            <td class="id-td">212446342</td>
+                            <td class="partner-name-td">Raúl Royer</td>
+                            <td class="type-td">Multa</td>
+                            <td class="payment-method-td">ACH</td>
+                            <td class="amount-td">34.65</td>
+                            <td class="date-td">2024/09/14</td>
+                            <td class="btns-td">
+                                <button data-tx-id="1" class="edit-btn custom-btn-1">&#x270E;</button>
+                                <button data-tx-id="1" class="delete-btn custom-btn-1">&#10006;</button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -137,6 +128,56 @@
 
             <div id="overlay"></div>
 
+            <div id="tx-form-popup" class="popup">
+                <span class="popup-title">Transacción</span>
+                <button class="close-btn">&#10006;</button>
+                <div class="form">
+                    <label class="custom-input-label-1">ID</label>
+                    <input class="id-input custom-input-1" type="text" disabled />
+                    <br/>
+                    <label class="custom-input-label-1">Socio</label>
+                    <select class="partner-input custom-input-1">
+                        <option>...</option>
+                    </select>
+                    <br/>
+                    <label class="custom-input-label-1">Tipo</label>
+                    <select class="type-input custom-input-1">
+                        <option>Multa</option>
+                        <option>Construcción</option>
+                        <option>Recargo</option>
+                        <option>Conexión</option>
+                        <option>Lote servido</option>
+                        <option>Otros</option>
+                        <option>Ajuste</option>
+                    </select>
+                    <br/>
+                    <label class="custom-input-label-1">Método de pago</label>
+                    <!-- <input class="payment-method-input custom-input-1" type="text" /> -->
+                    <select class="payment-method-input custom-input-1">
+                        <option>ACH</option>
+                        <option>Depósito</option>
+                        <option>Otro</option>
+                    </select>
+                    <br/>
+                    <label class="custom-input-label-1">Monto</label>
+                    <input class="amount-input custom-input-1" type="text"
+                        inputmode="numeric" pattern="[0-9+-.]+" oninput="validateDecimalInput(this)"
+                    />
+                    <!-- <input class="amount-input custom-input-1" type="text" /> -->
+                    <br/>
+                    <label class="custom-input-label-1">Fecha</label>
+                    <input class="date-input custom-input-1" type="date" />
+                    <br/>
+                    <label class="custom-input-label-1">Observación</label>
+                    <br/>
+                    <textarea class="note-input custom-input-1"></textarea>
+                    <br/>
+                    <div class="btn-container">
+                        <button class="btn-save custom-btn-1">Guardar</button>
+                    </div>
+                </div>
+            </div>
+
             <div id="partner-form-popup" class="popup">
                 <span class="popup-title">Socio</span>
                 <button class="close-btn">&#10006;</button>
@@ -166,5 +207,6 @@
     <!-- <script src="./src/index.js"></script> -->
     <script src="./src/js/index.js"></script>
     <script src="./src/js/partners.js"></script>
+    <script src="./src/js/tx.js"></script>
 </body>
 </html>

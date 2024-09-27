@@ -1,4 +1,75 @@
 // PARTNERS
+
+// MODEL
+model.partners = [
+    { id: 1, name: "Baggio" },
+    { id: 2, name: "Lamine Yamal" },
+    { id: 3, name: "Ferran Torres" }
+];
+model.currentPartner = { id: null, name: "" };
+
+// private
+model._partnerIdMap = _getPartnerIdMap();
+function _getPartnerIdMap () {
+    return model.partners.reduce((partialResult, currentItem) => {
+        partialResult[currentItem.id] = currentItem;
+        return partialResult;
+    }, {});
+}
+model._partnerListeners = [];
+function _emitPartnersChange (arg) {
+    for (var callbackFunc of model._partnerListeners) {
+        callbackFunc(arg);
+    }
+}
+
+// public
+function addPartnersListener (callbackFunc) {
+    if (!model._partnerListeners.includes(callbackFunc)) {
+        model._partnerListeners.push(callbackFunc);
+    }
+}
+function removePartnersListener (callbackFunc) {
+    var index = model._partnerListeners.indexOf(callbackFunc);
+    if (index != -1) {
+        model._partnerListeners.splice(index, 1);
+    }
+}
+function addPartner (partner) {
+    model.partners.push(partner);
+
+    // refresh id map
+    model._partnerIdMap = _getPartnerIdMap();
+    _emitPartnersChange({ add: partner });
+}
+function getPartnerById (id) {
+    return model._partnerIdMap[id];
+}
+function removePartnerById (id) {
+    var index = model.partners.findIndex((partner) => {
+        return partner.id == id;
+    });
+
+    if (index != -1) {
+        var removedPartners = model.partners.splice(index, 1);
+
+        // refresh id map
+        model._partnerIdMap = _getPartnerIdMap();
+        _emitPartnersChange({ remove: removedPartners[0] });
+    }
+}
+function nextNewPartnerId () {
+    var id = 1;
+    for (var partner of model.partners) {
+        if (partner.id >= id) {
+            id = partner.id + 1;
+        }
+    }
+    return id;
+}
+
+
+// CONTROLLER
 var partnersFilterInput = partnersPanel.querySelector(".filter-input");
 var partnersTable = partnersPanel.querySelector("table");
 var partnerCurrentTr;
@@ -46,14 +117,15 @@ function onSavePartnerBtnClick () {
         // EDIT
         model.currentPartner.name = partnerNameInput.value.trim();
         partnerCurrentTr.querySelector(".name-td").innerHTML = model.currentPartner.name;
-        // loadPartnersTable();
+        
+        _emitPartnersChange({ edit: model.currentPartner.name });
     } else {
         // INSERT
         var newPartner = {
             id: nextNewPartnerId(),
             name: partnerNameInput.value.trim()
         };
-        model.partners.push(newPartner);
+        addPartner(newPartner);
         addPartnerRow(newPartner);
     }
 
@@ -132,5 +204,4 @@ loadPartnersTable();
 
 partnerAddBtn.addEventListener("click", onAddPartnerBtnClick);
 partnerSaveBtn.addEventListener("click", onSavePartnerBtnClick);
-// partnersFilterInput.addEventListener("change", onPartnersFilterInputChange);
-partnersFilterInput.addEventListener("keyup", onPartnersFilterInputChange);
+partnersFilterInput.addEventListener("input", onPartnersFilterInputChange);

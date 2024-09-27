@@ -1,44 +1,5 @@
 //  MODEL
-var model = {
-    partners: [
-        { id: 1, name: "Raúl Royer" },
-        { id: 2, name: "Lamine Yamal" },
-        { id: 3, name: "Ferran Torres" }
-    ],
-    currentPartner: { id: null, name: "" }
-};
-
-function getPartnerById (id) {
-    var index = model.partners.findIndex((partner) => {
-        return partner.id == id;
-    });
-
-    if (index == -1) {
-        return null;
-    } else {
-        return model.partners[index];
-    }
-}
-function removePartnerById (id) {
-    var index = model.partners.findIndex((partner) => {
-        return partner.id == id;
-    });
-
-    if (index != -1) {
-        model.partners.splice(index, 1);
-    }
-}
-function nextNewPartnerId () {
-    var id = 1;
-    for (var partner of model.partners) {
-        console.log(partner.id, id);
-        if (partner.id >= id) {
-            id = partner.id + 1;
-            console.log("assign", id);
-        }
-    }
-    return id;
-}
+var model = {};
 
 // MENU NAVIGATION
 var txLink = document.querySelector(".tx-link");
@@ -157,4 +118,11 @@ function clearTable (table) {
     while(tbody.hasChildNodes()) {
         tbody.removeChild(tbody.firstChild);
     }
+}
+
+// INPUT
+// DECIMAL FILTER
+var validateDecimalInput = function(e) {
+    var t = e.value;
+    e.value = t.indexOf(".") >= 0 ? t.slice(0, t.indexOf(".") + 3) : t;
 }
