@@ -99,7 +99,7 @@ td.btns-td button {
     margin: 1em 0em 0em 1em;
     color: rgb(9 122 182);
 }
-.popup .close-btn {
+.popup .close-btn, .remove-charge-btn {
     float: right;
     background: none;
     cursor: pointer;
@@ -175,4 +175,18 @@ textarea.custom-input-1 {
 }
 #tx-form-popup label {
     width: 50px;
+}
+
+
+.charge-container {
+    margin-top: 1em;
+    /* border-color: rgb(155, 240, 255);
+    border-style: dashed;
+    border-width: 0px 0px 2px 0px; */
+    background: rgb(223, 237, 255);
+    border-radius: 0.5em;
+    padding: 1em;
+}
+.charge-container input {
+    width: 15em;
 }

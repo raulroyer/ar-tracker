@@ -122,7 +122,8 @@ function clearTable (table) {
 
 // INPUT
 // DECIMAL FILTER
-var validateDecimalInput = function(e) {
+var validateMoneyInput = function(e) {  
     var t = e.value;
+    t = t.replace(/[^0-9\.\-]+/g, "");
     e.value = t.indexOf(".") >= 0 ? t.slice(0, t.indexOf(".") + 3) : t;
 }

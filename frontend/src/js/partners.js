@@ -2,11 +2,19 @@
 
 // MODEL
 model.partners = [
-    { id: 1, name: "Baggio" },
-    { id: 2, name: "Lamine Yamal" },
-    { id: 3, name: "Ferran Torres" }
+    { id: 1, name: "Baggio", charges: [] },
+    { id: 2, name: "Lamine Yamal", charges: [] },
+    { id: 3, name: "Ferran Torres", charges: [
+        {
+            title: "Mensualidad",
+            startDate: "2024-02-10",
+            endDate: "",
+            repetitionInterval: "monthly",
+            amount: 7.00
+        }
+    ] }
 ];
-model.currentPartner = { id: null, name: "" };
+model.currentPartner = { id: null, name: "", charges: [] };
 
 // private
 model._partnerIdMap = _getPartnerIdMap();
@@ -77,13 +85,20 @@ var partnerAddBtn = partnersPanel.querySelector("#partners-panel .panel-add-btn"
 var partnerFormPopup = document.querySelector("#partner-form-popup");
 var partnerIdInput = partnerFormPopup.querySelector(".id-input");
 var partnerNameInput = partnerFormPopup.querySelector(".name-input");
+var partnerAddChargeBtn = partnerFormPopup.querySelector(".add-charge-btn");
 var partnerSaveBtn = partnerFormPopup.querySelector(".btn-save");
+var partnerChargesContainer = partnerFormPopup.querySelector(".charges-container");
+var partnerChargeContainerTmpl = partnerFormPopup.querySelector(".charge-container-template");
 
 function onAddPartnerBtnClick () {
-    partnerFormPopup.style.right = `${window.innerWidth - partnerAddBtn.getBoundingClientRect().right}px`;
-    partnerFormPopup.style.top = `${partnerAddBtn.getBoundingClientRect().bottom + 5}px`;
+    // popup.getBoundingClientRect() hack
+    partnerFormPopup.style.visibility = "hidden";
+    partnerFormPopup.style.display = "block";
 
-    model.currentPartner = { id: null, name: "" };
+    partnerFormPopup.style.right = `${(window.innerWidth - partnerFormPopup.getBoundingClientRect().width)/2}px`;
+    partnerFormPopup.style.top = `${window.scrollY + 10}px`;
+
+    model.currentPartner = { id: null, name: "", charges: [] };
     loadPartnerForm();
     openFormPopup(partnerFormPopup);
 
@@ -94,17 +109,8 @@ function onEditPartnerBtnClick (evt) {
     partnerFormPopup.style.visibility = "hidden";
     partnerFormPopup.style.display = "block";
 
-    // ubica el popup junto al botón
-
-    partnerFormPopup.style.right = `${window.innerWidth - evt.target.getBoundingClientRect().right}px`;
-    
-    viewportDistBelowTarget = window.innerHeight - evt.target.getBoundingClientRect().bottom;
-
-    if (viewportDistBelowTarget > partnerFormPopup.getBoundingClientRect().height) {
-        partnerFormPopup.style.top = `${window.scrollY + evt.target.getBoundingClientRect().bottom + 5}px`;
-    } else {
-        partnerFormPopup.style.top = `${window.scrollY + evt.target.getBoundingClientRect().top - partnerFormPopup.getBoundingClientRect().height - 5}px`;
-    }
+    partnerFormPopup.style.right = `${(window.innerWidth - partnerFormPopup.getBoundingClientRect().width)/2}px`;
+    partnerFormPopup.style.top = `${window.scrollY + 10}px`;
 
     partnerCurrentTr = evt.target.closest("tr");
 
@@ -112,10 +118,31 @@ function onEditPartnerBtnClick (evt) {
     loadPartnerForm();
     openFormPopup(partnerFormPopup);
 }
+function onAddPartnerChargeBtnClick () {
+    var clone = partnerChargeContainerTmpl.cloneNode(true);
+    partnerChargesContainer.appendChild(clone);
+    clone.querySelector(".remove-charge-btn").addEventListener("click", onPartnerRemoveChargeBtnClick);
+}
+function onPartnerRemoveChargeBtnClick (evt) {
+    evt.target.closest(".charge-container").remove();
+}
 function onSavePartnerBtnClick () {
+    // get charges from ui
+    var charges = [];
+    partnerFormPopup.querySelectorAll(".charge-container").forEach(chargeContainer => {
+        charges.push({
+            title: chargeContainer.querySelector(".charge-title-input").value.trim(),
+            startDate: chargeContainer.querySelector(".charge-start-date-input").value,
+            endDate: chargeContainer.querySelector(".charge-end-date-input").value,
+            repetitionInterval: chargeContainer.querySelector(".charge-interval-input").value,
+            amount: parseFloat(chargeContainer.querySelector(".charge-amount-input").value)
+        });
+    });
+
     if (model.currentPartner.id) {
         // EDIT
         model.currentPartner.name = partnerNameInput.value.trim();
+        model.currentPartner.charges = charges;
         partnerCurrentTr.querySelector(".name-td").innerHTML = model.currentPartner.name;
         
         _emitPartnersChange({ edit: model.currentPartner.name });
@@ -123,7 +150,8 @@ function onSavePartnerBtnClick () {
         // INSERT
         var newPartner = {
             id: nextNewPartnerId(),
-            name: partnerNameInput.value.trim()
+            name: partnerNameInput.value.trim(),
+            charges: charges
         };
         addPartner(newPartner);
         addPartnerRow(newPartner);
@@ -198,10 +226,28 @@ function filterPartnersRow (filterText) {
 function loadPartnerForm () {
     partnerIdInput.value = model.currentPartner.id;
     partnerNameInput.value = model.currentPartner.name;
+
+    while (partnerChargesContainer.firstChild) {
+        partnerChargesContainer.removeChild(partnerChargesContainer.firstChild);
+    }
+
+    for (var i = 0; i < model.currentPartner.charges.length; i++) {
+        var charge = model.currentPartner.charges[i];
+        var clone = partnerChargeContainerTmpl.cloneNode(true);
+        clone.querySelector(".charge-title-input").value = charge.title;
+        clone.querySelector(".charge-start-date-input").value = charge.startDate;
+        clone.querySelector(".charge-end-date-input").value = charge.endDate;
+        clone.querySelector(".charge-interval-input").value = charge.repetitionInterval;
+        clone.querySelector(".charge-amount-input").value = charge.amount.toFixed(2);
+        partnerChargesContainer.appendChild(clone);
+        clone.querySelector(".remove-charge-btn").addEventListener("click", onPartnerRemoveChargeBtnClick);
+    }
 }
 
+partnerChargeContainerTmpl.remove();
 loadPartnersTable();
 
 partnerAddBtn.addEventListener("click", onAddPartnerBtnClick);
+partnerAddChargeBtn.addEventListener("click", onAddPartnerChargeBtnClick);
 partnerSaveBtn.addEventListener("click", onSavePartnerBtnClick);
 partnersFilterInput.addEventListener("input", onPartnersFilterInputChange);

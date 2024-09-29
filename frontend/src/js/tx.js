@@ -30,7 +30,6 @@ function removeTxById (id) {
 }
 function removeTxByPartnerId (partnerId) {
     for (var i = model.tx.length -1; i >= 0; i--) {
-        console.log(model.tx[i].partner, partnerId, model.tx[i].partner == partnerId);
         if (model.tx[i].partner == partnerId) {
             model.tx.splice(i, 1);
         }
@@ -79,8 +78,6 @@ function onEditTxBtnClick (evt) {
     // popup.getBoundingClientRect() hack
     txFormPopup.style.visibility = "hidden";
     txFormPopup.style.display = "block";
-
-    // ubica el popup junto al botón
 
     txFormPopup.style.right = `${(window.innerWidth - txFormPopup.getBoundingClientRect().width)/2}px`;
     txFormPopup.style.top = `${window.scrollY + 10}px`;
@@ -158,7 +155,6 @@ function onTxFilterInputChange () {
     filterTxRow(txFilterInput.value);
 }
 function onPartnersChange (evt) {
-    console.log(evt);
     if (evt.remove) {
         removeTxByPartnerId(evt.remove.id);
         loadTxTable();

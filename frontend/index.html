@@ -163,7 +163,6 @@
                     <input class="amount-input custom-input-1" type="text"
                         inputmode="numeric" pattern="[0-9+-.]+" oninput="validateDecimalInput(this)"
                     />
-                    <!-- <input class="amount-input custom-input-1" type="text" /> -->
                     <br/>
                     <label class="custom-input-label-1">Fecha</label>
                     <input class="date-input custom-input-1" type="date" />
@@ -188,6 +187,39 @@
                     <label class="custom-input-label-1">Nombre</label>
                     <input class="name-input custom-input-1" type="text" />
                     <br/>
+
+                    <button class="add-charge-btn custom-btn-1">+ Agregar pago recurrente</button>
+                    <div class="charges-container">
+                        <!-- apenas arranque el programa el siguiente elemento será recuperado en una variable y será removido del DOM -->
+                        <!-- luego cuando se presione el botón se insertara una copia -->
+                        <div class="charge-container charge-container-template" >
+                            <button class="remove-charge-btn">
+                                &#10006;
+                            </button>
+                            <label class="custom-input-label-1">Nombre</label>
+                            <input class="charge-title-input custom-input-1" type="text" value="Servicio"/>
+                            <br/>
+                            <label class="custom-input-label-1">Inicio</label>
+                            <input class="charge-start-date-input custom-input-1" type="date" />
+                            <br/>
+                            <label class="custom-input-label-1">Fin</label>
+                            <input class="charge-end-date-input custom-input-1" type="date" />
+                            <br/>
+                            <label class="custom-input-label-1">Tipo</label>
+                            <select class="charge-interval-input custom-input-1">
+                                <option value="monthly">Mensual</option>
+                                <!-- <option>Quincenal</option>
+                                <option>Semanal</option> -->
+                            </select>
+                            <br/>
+                            <label class="custom-input-label-1">Monto</label>
+                            <input class="charge-amount-input custom-input-1" type="text"
+                                inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
+                            />
+                            <br/>
+                        </div>
+                    </div>
+
                     <div class="btn-container">
                         <button class="btn-save custom-btn-1">Guardar</button>
                     </div>
@@ -208,5 +240,9 @@
     <script src="./src/js/index.js"></script>
     <script src="./src/js/partners.js"></script>
     <script src="./src/js/tx.js"></script>
+    <script>
+        setOpenedPanel("partners");
+        onAddPartnerBtnClick();
+    </script>
 </body>
 </html>
