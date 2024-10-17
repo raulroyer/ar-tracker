@@ -2,9 +2,7 @@
 var model = {};
 
 // MENU NAVIGATION
-var txLink = document.querySelector(".tx-link");
-var partnersLink = document.querySelector(".partners-link");
-var reportLink = document.querySelector(".report-link");
+var menuLinks = document.querySelectorAll("#menu li");
 
 var txPanel = document.querySelector("#tx-panel");
 var partnersPanel = document.querySelector("#partners-panel");
@@ -35,27 +33,18 @@ function setOpenedPanel (key) {
     currentPanel = selectedPanel;
 
 }
-function setSelectedMenuLink (linkNode) {
-    txLink.removeAttribute("selected");
-    partnersLink.removeAttribute("selected");
-    reportLink.removeAttribute("selected");
 
-    linkNode.setAttribute("selected", "");
+function onMenuLinkClick (evt) {
+    setOpenedPanel(evt.target.dataset.section);
+
+    menuLinks.forEach((li) => {
+        li.removeAttribute("selected");
+    });
+    evt.target.setAttribute("selected", "");
 }
 
-txLink.addEventListener("click", (evt) => {
-    setOpenedPanel("tx");
-    setSelectedMenuLink(evt.target);
-});
-
-partnersLink.addEventListener("click", (evt) => {
-    setOpenedPanel("partners");
-    setSelectedMenuLink(evt.target);
-});
-
-reportLink.addEventListener("click", (evt) => {
-    setOpenedPanel("report");
-    setSelectedMenuLink(evt.target);
+menuLinks.forEach((li) => {
+    li.addEventListener("click", onMenuLinkClick);
 });
 
 
