@@ -23,7 +23,6 @@
         </div>
 
         <div class="main-container">
-
             <div id="tx-panel" class="panel">
                 <div class="add-btn-container">
                     <h3 class="panel-title">Transacciones</h3>
@@ -87,40 +86,45 @@
             </div>
 
             <div id="report-panel" class="panel">
+                <div class="add-btn-container">
+                    <h3 class="panel-title">Balance</h3>
+                    <!-- <label class="custom-input-label-1">
+                        Solo morosos
+                        <input type="checkbox" class="only-negative-input custom-input-1" />
+                    </label> -->
+                    <label class="custom-input-label-1">Hasta</label>
+                    <input type="date" class="end-date-input custom-input-1" />
+                    <label class="custom-input-label-1">&#128269;</label>
+                    <input type="text" class="filter-input custom-input-1" />
+                    <button class="panel-filter-btn custom-btn-1">+ Filtrar</button>
+                </div>
                 <table>
-                    <caption>
-                        Reporte de Morosidad
-                    </caption>
                     <thead>
                         <tr>
-                            <th>Nombre</th>
-                            <th>Último pago</th>
-                            <th>Monto del pago</th>
-                            <th>Meses pendientes</th>
-                            <th>Monto pendiente</th>
+                            <th></th>
+                            <th colspan="2">Último pago</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <th>Socio</th>
+                            <th>Fecha</th>
+                            <th>Monto</th>
+                            <th>Deuda</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Raúl Royer</td>
-                            <td>Agosto 2024</td>
-                            <td>Junio</td>
-                            <td>Julio, Agosto</td>
-                            <td>16.30</td>
-                        </tr>
-                        <tr>
-                            <td>Raúl Royer</td>
-                            <td>Agosto 2024</td>
-                            <td>Junio</td>
-                            <td>Julio, Agosto</td>
-                            <td>16.30</td>
-                        </tr>
-                        <tr>
-                            <td>Raúl Royer</td>
-                            <td>Agosto 2024</td>
-                            <td>Junio</td>
-                            <td>Julio, Agosto</td>
-                            <td>16.30</td>
+                            <td class="id-td">212446342</td>
+                            <td class="partner-name-td">Raúl Royer</td>
+                            <td class="type-td">Multa</td>
+                            <td class="payment-method-td">ACH</td>
+                            <td class="amount-td">34.65</td>
+                            <td class="date-td">2024/09/14</td>
+                            <td class="btns-td">
+                                <button data-tx-id="1" class="edit-btn custom-btn-1">&#x270E;</button>
+                                <button data-tx-id="1" class="delete-btn custom-btn-1">&#10006;</button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -132,45 +136,198 @@
                 <span class="popup-title">Transacción</span>
                 <button class="close-btn">&#10006;</button>
                 <div class="form">
-                    <label class="custom-input-label-1">ID</label>
-                    <input class="id-input custom-input-1" type="text" disabled />
-                    <br/>
-                    <label class="custom-input-label-1">Socio</label>
-                    <select class="partner-input custom-input-1">
-                        <option>...</option>
-                    </select>
-                    <br/>
-                    <label class="custom-input-label-1">Tipo</label>
-                    <select class="type-input custom-input-1">
-                        <option>Multa</option>
-                        <option>Construcción</option>
-                        <option>Recargo</option>
-                        <option>Conexión</option>
-                        <option>Lote servido</option>
-                        <option>Otros</option>
-                        <option>Ajuste</option>
-                    </select>
-                    <br/>
-                    <label class="custom-input-label-1">Método de pago</label>
-                    <!-- <input class="payment-method-input custom-input-1" type="text" /> -->
-                    <select class="payment-method-input custom-input-1">
-                        <option>ACH</option>
-                        <option>Depósito</option>
-                        <option>Otro</option>
-                    </select>
-                    <br/>
-                    <label class="custom-input-label-1">Monto</label>
-                    <input class="amount-input custom-input-1" type="text"
-                        inputmode="numeric" pattern="[0-9+-.]+" oninput="validateDecimalInput(this)"
-                    />
-                    <br/>
-                    <label class="custom-input-label-1">Fecha</label>
-                    <input class="date-input custom-input-1" type="date" />
-                    <br/>
-                    <label class="custom-input-label-1">Observación</label>
-                    <br/>
-                    <textarea class="note-input custom-input-1"></textarea>
-                    <br/>
+                    <div>
+                        <label class="custom-input-label-1">Categoría</label>
+                        <select class="category-input custom-input-1">
+                            <option value="pay">Pago de servicio</option>
+                            <option value="other-pay">Otro pago</option>
+                            <option value="ar">Cuenta x cobrar</option>
+                        </select>
+                    </div>
+                    <hr />
+                    <div data-category="pay,other-pay,ar">
+                        <label class="custom-input-label-1">ID</label>
+                        <input class="id-input custom-input-1" type="text" disabled />
+                    </div>
+                    <div data-category="other-pay">
+                        <label class="custom-input-label-1">Target Id</label>
+                        <input class="target-id-input custom-input-1" type="text" />
+                    </div>
+                    <div data-category="pay,other-pay,ar">
+                        <label class="custom-input-label-1">Socio</label>
+                        <select class="partner-input custom-input-1">
+                            <option>...</option>
+                        </select>
+                    </div>
+                    <div data-category="pay,other-pay,ar">
+                        <label class="custom-input-label-1">Tipo</label>
+                        <select class="type-input custom-input-1">
+                            <option>Servicio</option>
+                            <option>Multa</option>
+                            <option>Construcción</option>
+                            <option>Recargo</option>
+                            <option>Conexión</option>
+                            <option>Lote servido</option>
+                            <option>Ajuste</option>
+                            <option>Otros</option>
+                        </select>
+                    </div>
+                    <div data-category="pay,other-pay">
+                        <label class="custom-input-label-1">Método de pago</label>
+                        <!-- <input class="payment-method-input custom-input-1" type="text" /> -->
+                        <select class="payment-method-input custom-input-1">
+                            <option>ACH</option>
+                            <option>Depósito</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+                    <div data-category="pay,other-pay,ar">
+                        <label class="custom-input-label-1">Monto</label>
+                        <input class="amount-input custom-input-1" type="text"
+                            inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
+                        />
+                    </div>
+                    <div data-category="pay,other-pay,ar">
+                        <label class="custom-input-label-1">Fecha</label>
+                        <input class="date-input custom-input-1" type="date" />
+                    </div>
+                    <div data-category="pay,other-pay,ar">
+                        <label class="custom-input-label-1">Observación</label>
+                        <br/>
+                        <textarea class="note-input custom-input-1"></textarea>
+                    </div>
+                    <div class="btn-container">
+                        <button class="btn-save custom-btn-1">Guardar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tx-ar-form-popup" class="popup">
+                <span class="popup-title">Cuenta por cobrar</span>
+                <button class="close-btn">&#10006;</button>
+                <div class="form">
+                    <div>
+                        <label class="custom-input-label-1">ID</label>
+                        <input class="id-input custom-input-1" type="text" disabled />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Socio</label>
+                        <select class="partner-input custom-input-1">
+                            <option>...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Tipo</label>
+                        <select class="type-input custom-input-1">
+                            <option>Multa</option>
+                            <option>Construcción</option>
+                            <option>Recargo</option>
+                            <option>Conexión</option>
+                            <option>Lote servido</option>
+                            <option>Otros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Monto</label>
+                        <input class="amount-input custom-input-1" type="text"
+                            inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
+                        />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Fecha</label>
+                        <input class="date-input custom-input-1" type="date" />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Observación</label>
+                        <br/>
+                        <textarea class="note-input custom-input-1"></textarea>
+                    </div>
+                    <div class="btn-container">
+                        <button class="btn-save custom-btn-1">Guardar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tx-service-form-popup" class="popup">
+                <span class="popup-title">Pago de servicio</span>
+                <button class="close-btn">&#10006;</button>
+                <div class="form">
+                    <div>
+                        <label class="custom-input-label-1">ID</label>
+                        <input class="id-input custom-input-1" type="text" disabled />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Socio</label>
+                        <select class="partner-input custom-input-1">
+                            <option>...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Método de pago</label>
+                        <!-- <input class="payment-method-input custom-input-1" type="text" /> -->
+                        <select class="payment-method-input custom-input-1">
+                            <option>ACH</option>
+                            <option>Depósito</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Monto</label>
+                        <input class="amount-input custom-input-1" type="text"
+                            inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
+                        />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Fecha</label>
+                        <input class="date-input custom-input-1" type="date" />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Observación</label>
+                        <br/>
+                        <textarea class="note-input custom-input-1"></textarea>
+                    </div>
+                    <div class="btn-container">
+                        <button class="btn-save custom-btn-1">Guardar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tx-other-form-popup" class="popup">
+                <span class="popup-title">Transacción</span>
+                <button class="close-btn">&#10006;</button>
+                <div class="form">
+                    <div>
+                        <label class="custom-input-label-1">ID</label>
+                        <input class="id-input custom-input-1" type="text" disabled />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Target Id</label>
+                        <input class="target-id-input custom-input-1" type="text" />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Método de pago</label>
+                        <!-- <input class="payment-method-input custom-input-1" type="text" /> -->
+                        <select class="payment-method-input custom-input-1">
+                            <option>ACH</option>
+                            <option>Depósito</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Monto</label>
+                        <input class="amount-input custom-input-1" type="text"
+                            inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
+                        />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Fecha</label>
+                        <input class="date-input custom-input-1" type="date" />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Observación</label>
+                        <br/>
+                        <textarea class="note-input custom-input-1"></textarea>
+                    </div>
                     <div class="btn-container">
                         <button class="btn-save custom-btn-1">Guardar</button>
                     </div>
@@ -239,10 +396,11 @@
     <!-- <script src="./src/index.js"></script> -->
     <script src="./src/js/index.js"></script>
     <script src="./src/js/partners.js"></script>
+    <script src="./src/js/tx-ar.js"></script>
     <script src="./src/js/tx.js"></script>
     <script>
-        setOpenedPanel("partners");
-        onAddPartnerBtnClick();
+        setOpenedPanel("tx");
+        onAddTxBtnClick();
     </script>
 </body>
 </html>

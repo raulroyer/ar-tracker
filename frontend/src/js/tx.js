@@ -2,11 +2,42 @@
 
 // MODEL
 model.tx = [
-    { id: 1, partner: 1, type: "Multa", paymentMethod: "ACH", amount: 34.65, date: "2024-09-14", note: "" },
-    { id: 2, partner: 2, type: "Conexión", paymentMethod: "ACH", amount: 15.33, date: "2024-10-14", note: "lsdskl aslkdjas aslkd askl; as;dasd k;sa" }
+    {
+        id: 1,
+        category: "ar",
+        targetTxId: null,
+        partner: 1,
+        type: "Multa",
+        paymentMethod: null,
+        amount: 34.65,
+        date: "2024-09-14",
+        note: "",
+    },
+    {
+        id: 2,
+        category: "ar",
+        targetTxId: null,
+        partner: 2,
+        type: "Conexión",
+        paymentMethod: null,
+        amount: 15.33,
+        date: "2024-10-14",
+        note: "lsdskl aslkdjas aslkd askl; as;dasd k;sa"
+    }
     
 ];
-model.currentTx = { id: null, partnerName: "", type: null, paymentMethod: null, amount: null, date: null, note: "" };
+model.currentTx = {
+    id: null,
+    category: null,
+    targetTxId: null,
+    partner: null,
+    partnerName: "",
+    type: null,
+    paymentMethod: null,
+    amount: null,
+    date: null,
+    note: ""
+};
 
 function getTxById (id) {
     var index = model.tx.findIndex((tx) => {
@@ -45,6 +76,7 @@ function nextNewTxId () {
     return id;
 }
 
+
 // CONTROLLER
 var txFilterInput = txPanel.querySelector(".filter-input");
 var txTable = txPanel.querySelector("table");
@@ -52,6 +84,8 @@ var txCurrentTr;
 var txAddBtn = txPanel.querySelector("#tx-panel .panel-add-btn");
 var txFormPopup = document.querySelector("#tx-form-popup");
 var txIdInput = txFormPopup.querySelector(".id-input");
+var txCategoryInput = txFormPopup.querySelector(".category-input");
+var txTargetIdInput = txFormPopup.querySelector(".target-id-input");
 var txPartnerInput = txFormPopup.querySelector(".partner-input");
 var txTypeInput = txFormPopup.querySelector(".type-input");
 var txPaymentMethodInput = txFormPopup.querySelector(".payment-method-input");
@@ -59,6 +93,8 @@ var txAmountInput = txFormPopup.querySelector(".amount-input");
 var txDateInput = txFormPopup.querySelector(".date-input");
 var txNoteInput = txFormPopup.querySelector(".note-input");
 var txSaveBtn = txFormPopup.querySelector(".btn-save");
+
+var testPopupCtrl = new TxArPopupCtrllr(document.querySelector("#tx-ar-form-popup"));
 
 function onAddTxBtnClick () {
     // popup.getBoundingClientRect() hack
@@ -68,7 +104,19 @@ function onAddTxBtnClick () {
     txFormPopup.style.right = `${(window.innerWidth - txFormPopup.getBoundingClientRect().width)/2}px`;
     txFormPopup.style.top = `${window.scrollY + 10}px`;
 
-    model.currentTx = { id: null, partnerName: "", type: null, paymentMethod: null, amount: null, date: null, note: "" };
+    var now = new Date();
+
+    model.currentTx = {
+        id: null,
+        category: null,
+        targetTxId: null,
+        partnerName: "",
+        type: null,
+        paymentMethod: null,
+        amount: null,
+        date: `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`,
+        note: ""
+    };
     loadTxForm();
     openFormPopup(txFormPopup);
 
@@ -86,7 +134,10 @@ function onEditTxBtnClick (evt) {
 
     model.currentTx = getTxById(evt.target.dataset.txId);
     loadTxForm();
-    openFormPopup(txFormPopup);
+    // openFormPopup(txFormPopup);
+    testPopupCtrl.refreshForm();
+    testPopupCtrl.centerForm();
+    openFormPopup(testPopupCtrl.popup);
 }
 function onSaveTxBtnClick () {
     if (model.currentTx.id) {
@@ -109,6 +160,7 @@ function onSaveTxBtnClick () {
         // INSERT
         var newTx = {
             id: nextNewTxId(),
+            category: null,
             partner: txPartnerInput.value.trim(),
             partnerName: txPartnerInput.options[txPartnerInput.selectedIndex].textContent,
             type: txTypeInput.value,
@@ -201,7 +253,9 @@ function filterTxRow (filterText) {
         }
     });
 }
+
 function loadTxForm () {
+
     var htmlOptionsString = model.partners.
         sort((a, b) => {
             if (a.name > b.name) {
@@ -214,17 +268,35 @@ function loadTxForm () {
     txPartnerInput.innerHTML = htmlOptionsString;
 
     txIdInput.value = model.currentTx.id;
+    txCategoryInput.value = model.currentTx.category;
     txPartnerInput.value = model.currentTx.partner;
     txTypeInput.value = model.currentTx.type;
     txPaymentMethodInput.value = model.currentTx.paymentMethod;
     txAmountInput.value = model.currentTx.amount;
     txDateInput.value = model.currentTx.date;
     txNoteInput.value = model.currentTx.note;
+
+    refreshTxFormFieldVisibility();
+}
+
+function refreshTxFormFieldVisibility () {
+    var fieldContainers = txFormPopup.querySelectorAll("[data-category]");
+    fieldContainers.forEach((elm) => {
+        elm.style.display = "none";
+    });
+
+    var fieldContainers = txFormPopup.querySelectorAll("[data-category]");
+    fieldContainers.forEach((elm) => {
+        if (elm.dataset.category.split(",").includes(txCategoryInput.value)) {
+            elm.style.display = "block";
+        }
+    });
 }
 
 loadTxTable();
 
 addPartnersListener(onPartnersChange);
 txAddBtn.addEventListener("click", onAddTxBtnClick);
+txCategoryInput.addEventListener("input", refreshTxFormFieldVisibility);
 txSaveBtn.addEventListener("click", onSaveTxBtnClick);
 txFilterInput.addEventListener("input", onTxFilterInputChange);

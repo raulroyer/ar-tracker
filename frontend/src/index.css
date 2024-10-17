@@ -32,6 +32,11 @@ table {
     width: 100%;
 }
 
+th[colspan] {
+    border-bottom: 1px solid black;
+    text-align: center;
+}
+
 tbody tr:nth-child(2n+1) {
     background-color: rgb(232, 241, 245);
 }
@@ -109,8 +114,24 @@ td.btns-td button {
     border: none;
     color: rgb(72, 184, 244);
 }
-.popup input {
-    width: 20em;
+.popup input, .popup select {
+    width: 15em;
+}
+.popup input[type="radio"] {
+    width: 2em !important;
+    margin-bottom: 1.5em;
+}
+#tx-form-popup label.type-radio-label {
+    /* border: 1px solid green; */
+    border-radius: 0.5em;
+    padding: 0em 0em 0em 0.5em;
+    display: inline-block;
+    width: 150px;
+    height: 30px;
+    padding-top: 5px;
+}
+#tx-form-popup label.type-radio-label.checked {
+    background: rgb(223, 237, 255);
 }
 .popup textarea {
     width: 24em;
@@ -168,13 +189,22 @@ textarea.custom-input-1 {
 #partner-form-popup label {
     width: 50px;
 }
+#partner-form-popup input, #partner-form-popup select {
+    width: 15em;
+}
 
-#tx-form-popup div.form {
+#tx-form-popup div.form,
+#tx-ar-form-popup div.form {
     width: 345px;
     padding: 1.5em;
 }
-#tx-form-popup label {
-    width: 50px;
+#tx-form-popup label,
+#tx-ar-form-popup label {
+    width: 70px;
+}
+#tx-ar-form-popup input, #tx-ar-form-popup select,
+#tx-form-popup input, #tx-form-popup select {
+    width: 18em;
 }
 
 
