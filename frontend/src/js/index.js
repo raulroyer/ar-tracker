@@ -3,27 +3,13 @@ var model = {};
 
 // MENU NAVIGATION
 var menuLinks = document.querySelectorAll("#menu li");
-
-var txPanel = document.querySelector("#tx-panel");
-var partnersPanel = document.querySelector("#partners-panel");
-
-var reportPanel = document.querySelector("#report-panel");
 var currentPanel;
 
 function setOpenedPanel (key) {
-    var selectedPanel;
-    switch (key) {
-        case "tx":
-            selectedPanel = txPanel;
-            break;
-        case "partners":
-            selectedPanel = partnersPanel;
-            break;
-        case "report":
-            selectedPanel = reportPanel;
-            break;
-        default:
-            break;
+    var selectedPanel = document.querySelector(`#${key}-panel`);
+    if (selectedPanel == null) {
+        console.log(`#${key}-panel not found`);
+        return;
     }
 
     if (currentPanel) {

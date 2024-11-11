@@ -78,6 +78,7 @@ function nextNewTxId () {
 
 
 // CONTROLLER
+var txPanel = document.querySelector("#tx-panel");
 var txFilterInput = txPanel.querySelector(".filter-input");
 var txTable = txPanel.querySelector("table");
 var txCurrentTr;

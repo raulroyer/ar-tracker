@@ -78,6 +78,7 @@ function nextNewPartnerId () {
 
 
 // CONTROLLER
+var partnersPanel = document.querySelector("#partners-panel");
 var partnersFilterInput = partnersPanel.querySelector(".filter-input");
 var partnersTable = partnersPanel.querySelector("table");
 var partnerCurrentTr;
