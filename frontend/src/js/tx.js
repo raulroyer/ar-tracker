@@ -93,9 +93,9 @@ var txPaymentMethodInput = txFormPopup.querySelector(".payment-method-input");
 var txAmountInput = txFormPopup.querySelector(".amount-input");
 var txDateInput = txFormPopup.querySelector(".date-input");
 var txNoteInput = txFormPopup.querySelector(".note-input");
-var txSaveBtn = txFormPopup.querySelector(".btn-save");
+var txSaveBtn = txFormPopup.querySelector(".save-btn");
 
-var testPopupCtrl = new TxArPopupCtrllr(document.querySelector("#tx-ar-form-popup"));
+var testPopupCtrl = new ArPopupCtrllr(document.querySelector("#ar-form-popup"));
 
 function onAddTxBtnClick () {
     // popup.getBoundingClientRect() hack
@@ -219,7 +219,7 @@ function addTxRow (tx) {
     var tbody = txTable.querySelector("tbody");
     var tr = document.createElement("tr");
 
-    var partner = getPartnerById(tx.partner);
+    var partner = mdl.partner.getItemById(tx.partner);
 
     tr.innerHTML = `
         <td>${tx.id}</td>
@@ -296,7 +296,7 @@ function refreshTxFormFieldVisibility () {
 
 loadTxTable();
 
-addPartnersListener(onPartnersChange);
+pubsub.add("partners_change", onPartnersChange);
 txAddBtn.addEventListener("click", onAddTxBtnClick);
 txCategoryInput.addEventListener("input", refreshTxFormFieldVisibility);
 txSaveBtn.addEventListener("click", onSaveTxBtnClick);

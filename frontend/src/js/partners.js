@@ -1,254 +1,132 @@
-// PARTNERS
+// POPUP
+var PartnerPopup = function (mdl, popupElm) {
+    this.popup = popupElm;
+    this.idInput = this.popup.querySelector(".id-input");
+    this.nameInput = this.popup.querySelector(".name-input");
+    this.saveBtn = this.popup.querySelector(".save-btn");
 
-// MODEL
-model.partners = [
-    { id: 1, name: "Baggio", charges: [] },
-    { id: 2, name: "Lamine Yamal", charges: [] },
-    { id: 3, name: "Ferran Torres", charges: [
-        {
-            title: "Mensualidad",
-            startDate: "2024-02-10",
-            endDate: "",
-            repetitionInterval: "monthly",
-            amount: 7.00
-        }
-    ] }
-];
-model.currentPartner = { id: null, name: "", charges: [] };
-
-// private
-model._partnerIdMap = _getPartnerIdMap();
-function _getPartnerIdMap () {
-    return model.partners.reduce((partialResult, currentItem) => {
-        partialResult[currentItem.id] = currentItem;
-        return partialResult;
-    }, {});
-}
-model._partnerListeners = [];
-function _emitPartnersChange (arg) {
-    for (var callbackFunc of model._partnerListeners) {
-        callbackFunc(arg);
-    }
-}
-
-// public
-function addPartnersListener (callbackFunc) {
-    if (!model._partnerListeners.includes(callbackFunc)) {
-        model._partnerListeners.push(callbackFunc);
-    }
-}
-function removePartnersListener (callbackFunc) {
-    var index = model._partnerListeners.indexOf(callbackFunc);
-    if (index != -1) {
-        model._partnerListeners.splice(index, 1);
-    }
-}
-function addPartner (partner) {
-    model.partners.push(partner);
-
-    // refresh id map
-    model._partnerIdMap = _getPartnerIdMap();
-    _emitPartnersChange({ add: partner });
-}
-function getPartnerById (id) {
-    return model._partnerIdMap[id];
-}
-function removePartnerById (id) {
-    var index = model.partners.findIndex((partner) => {
-        return partner.id == id;
-    });
-
-    if (index != -1) {
-        var removedPartners = model.partners.splice(index, 1);
-
-        // refresh id map
-        model._partnerIdMap = _getPartnerIdMap();
-        _emitPartnersChange({ remove: removedPartners[0] });
-    }
-}
-function nextNewPartnerId () {
-    var id = 1;
-    for (var partner of model.partners) {
-        if (partner.id >= id) {
-            id = partner.id + 1;
-        }
-    }
-    return id;
-}
-
-
-// CONTROLLER
-var partnersPanel = document.querySelector("#partners-panel");
-var partnersFilterInput = partnersPanel.querySelector(".filter-input");
-var partnersTable = partnersPanel.querySelector("table");
-var partnerCurrentTr;
-var partnerAddBtn = partnersPanel.querySelector("#partners-panel .panel-add-btn");
-var partnerFormPopup = document.querySelector("#partner-form-popup");
-var partnerIdInput = partnerFormPopup.querySelector(".id-input");
-var partnerNameInput = partnerFormPopup.querySelector(".name-input");
-var partnerAddChargeBtn = partnerFormPopup.querySelector(".add-charge-btn");
-var partnerSaveBtn = partnerFormPopup.querySelector(".btn-save");
-var partnerChargesContainer = partnerFormPopup.querySelector(".charges-container");
-var partnerChargeContainerTmpl = partnerFormPopup.querySelector(".charge-container-template");
-
-function onAddPartnerBtnClick () {
-    // popup.getBoundingClientRect() hack
-    partnerFormPopup.style.visibility = "hidden";
-    partnerFormPopup.style.display = "block";
-
-    partnerFormPopup.style.right = `${(window.innerWidth - partnerFormPopup.getBoundingClientRect().width)/2}px`;
-    partnerFormPopup.style.top = `${window.scrollY + 10}px`;
-
-    model.currentPartner = { id: null, name: "", charges: [] };
-    loadPartnerForm();
-    openFormPopup(partnerFormPopup);
-
-    partnerNameInput.focus();
-}
-function onEditPartnerBtnClick (evt) {
-    // popup.getBoundingClientRect() hack
-    partnerFormPopup.style.visibility = "hidden";
-    partnerFormPopup.style.display = "block";
-
-    partnerFormPopup.style.right = `${(window.innerWidth - partnerFormPopup.getBoundingClientRect().width)/2}px`;
-    partnerFormPopup.style.top = `${window.scrollY + 10}px`;
-
-    partnerCurrentTr = evt.target.closest("tr");
-
-    model.currentPartner = getPartnerById(evt.target.dataset.partnerId);
-    loadPartnerForm();
-    openFormPopup(partnerFormPopup);
-}
-function onAddPartnerChargeBtnClick () {
-    var clone = partnerChargeContainerTmpl.cloneNode(true);
-    partnerChargesContainer.appendChild(clone);
-    clone.querySelector(".remove-charge-btn").addEventListener("click", onPartnerRemoveChargeBtnClick);
-}
-function onPartnerRemoveChargeBtnClick (evt) {
-    evt.target.closest(".charge-container").remove();
-}
-function onSavePartnerBtnClick () {
-    // get charges from ui
-    var charges = [];
-    partnerFormPopup.querySelectorAll(".charge-container").forEach(chargeContainer => {
-        charges.push({
-            title: chargeContainer.querySelector(".charge-title-input").value.trim(),
-            startDate: chargeContainer.querySelector(".charge-start-date-input").value,
-            endDate: chargeContainer.querySelector(".charge-end-date-input").value,
-            repetitionInterval: chargeContainer.querySelector(".charge-interval-input").value,
-            amount: parseFloat(chargeContainer.querySelector(".charge-amount-input").value)
-        });
-    });
-
-    if (model.currentPartner.id) {
-        // EDIT
-        model.currentPartner.name = partnerNameInput.value.trim();
-        model.currentPartner.charges = charges;
-        partnerCurrentTr.querySelector(".name-td").innerHTML = model.currentPartner.name;
-        
-        _emitPartnersChange({ edit: model.currentPartner.name });
-    } else {
-        // INSERT
-        var newPartner = {
-            id: nextNewPartnerId(),
-            name: partnerNameInput.value.trim(),
-            charges: charges
-        };
-        addPartner(newPartner);
-        addPartnerRow(newPartner);
-    }
-
-    closeFormPopup();
-}
-function onDeletePartnerBtnClick (evt) {
-    // popup.getBoundingClientRect() hack
-    confirmationPopup.style.visibility = "hidden";
-    confirmationPopup.style.display = "block";
-
-    // ubica el popup junto al botón
-
-    confirmationPopup.style.right = `${window.innerWidth - evt.target.getBoundingClientRect().right}px`;
-    
-    viewportDistBelowTarget = window.innerHeight - evt.target.getBoundingClientRect().bottom;
-
-    if (viewportDistBelowTarget > confirmationPopup.getBoundingClientRect().height) {
-        confirmationPopup.style.top = `${window.scrollY + evt.target.getBoundingClientRect().bottom + 5}px`;
-    } else {
-        confirmationPopup.style.top = `${window.scrollY + evt.target.getBoundingClientRect().top - confirmationPopup.getBoundingClientRect().height - 5}px`;
-    }
-
-    var partner = getPartnerById(evt.target.dataset.partnerId);
-    openConfirmPopup(
-        `Se va a eliminar el socio <strong>${partner.name}</strong> (${partner.id}). Esta acción también eliminará sus transacciones.`,
-        (response) => {
-            if (response === true) {
-                removePartnerById(partner.id);
-                evt.target.closest("tr").remove();
-            }
-        }
-    );
-}
-function onPartnersFilterInputChange () {
-    filterPartnersRow(partnersFilterInput.value);
-}
-function addPartnerRow (partner) {
-    var tbody = partnersTable.querySelector("tbody");
-    var tr = document.createElement("tr");
-
-    tr.innerHTML = `
-        <td>${partner.id}</td>
-        <td class="name-td">${partner.name}</td>
-        <td class="btns-td">
-        <button data-partner-id="${partner.id}" class="edit-btn custom-btn-1">&#x270E;</button>
-        <button data-partner-id="${partner.id}" class="delete-btn custom-btn-1">&#10006;</button>
-        </td>`;
-    tbody.appendChild(tr);
-
-    tr.querySelector(".edit-btn").addEventListener("click", onEditPartnerBtnClick);
-    tr.querySelector(".delete-btn").addEventListener("click", onDeletePartnerBtnClick);
-}
-function loadPartnersTable () {
-    clearTable(partnersTable);
-
-    for (var i = 0; i < model.partners.length; i++) {
-        addPartnerRow(model.partners[i]);
-    }
-}
-function filterPartnersRow (filterText) {
-    filterText = filterText.trim().toLowerCase();
-    partnersTable.querySelectorAll("tbody tr").forEach((tr) => {
-        if (tr.textContent.toLowerCase().includes(filterText)) {
-            tr.style.display = "table-row";
+    this.load = () => {
+        this.idInput.value = mdl.partner.currentItem.id;
+        this.nameInput.value = mdl.partner.currentItem.name;
+    };
+    this.open = () => {
+        this.load();
+        this.center();
+        openFormPopup(this.popup);
+    };
+    this.focus = () => {
+        this.nameInput.focus();
+    };
+    this.onSaveBtnClick = () => {
+        if (mdl.partner.currentItem.id) {
+            // EDIT
+            mdl.partner.currentItem.name = this.nameInput.value.trim();
+            pubsub.emit("partners_change", {
+                edit: {
+                    id: mdl.partner.currentItem.id,
+                    name: mdl.partner.currentItem.name
+                }
+            });
         } else {
-            tr.style.display = "none";
+            // INSERT
+            var newPartner = {
+                id: mdl.partner.nextNewItemId(),
+                name: this.nameInput.value.trim()
+            };
+            mdl.partner.addItem(newPartner);
+            // el evento de que se agrego un partner se emite desde dentro del modelo
         }
-    });
-}
-function loadPartnerForm () {
-    partnerIdInput.value = model.currentPartner.id;
-    partnerNameInput.value = model.currentPartner.name;
+        closeFormPopup();
+    };
+    this.center = _centerPopup;
 
-    while (partnerChargesContainer.firstChild) {
-        partnerChargesContainer.removeChild(partnerChargesContainer.firstChild);
+    this.saveBtn.addEventListener("click", this.onSaveBtnClick);
+
+    return {
+        open: this.open,
+        focus: this.focus,
+    };
+};
+
+// PANEL
+var PartnersPanel = function (mdl, panelElm) {
+    this.panel = panelElm;
+    this.filterInput = this.panel.querySelector(".filter-input");
+    this.addBtn = this.panel.querySelector(".panel-add-btn");
+    this.table = this.panel.querySelector("table");
+    this.formPopup = new PartnerPopup(mdl, document.querySelector("#partner-form-popup"));
+
+    this.addRow = (item) => {
+        var tbody = this.table.querySelector("tbody");
+        var tr = document.createElement("tr");
+    
+        tr.innerHTML = `
+            <td>${item.id}</td>
+            <td class="name-td">${item.name}</td>
+            <td class="btns-td">
+            <button data-partner-id="${item.id}" class="edit-btn custom-btn-1">&#x270E;</button>
+            <button data-partner-id="${item.id}" class="delete-btn custom-btn-1">&#10006;</button>
+            </td>`;
+        tbody.appendChild(tr);
+    
+        tr.querySelector(".edit-btn").addEventListener("click", this.onEditBtnClick);
+        tr.querySelector(".delete-btn").addEventListener("click", this.onDeleteBtnClick);
+    };
+    this.loadTable = () => {
+        clearTable(this.table);
+    
+        for (var i = 0; i < mdl.partner.list.length; i++) {
+            this.addRow(mdl.partner.list[i]);
+        }
+    };
+    this.onAddBtnClick = () => {
+        mdl.partner.currentItem = { id: null, name: "" };
+        this.formPopup.open();
+        this.formPopup.focus(); 
+    };
+    this.onEditBtnClick = (evt) => {
+        mdl.partner.currentItem = mdl.partner.getItemById(evt.target.dataset.partnerId);
+        this.formPopup.open();
     }
+    this.onDeleteBtnClick = (evt) => {
+        var partner = mdl.partner.getItemById(evt.target.dataset.partnerId);
+        confirmPopup.open(
+            `Se va a eliminar el socio <strong>${partner.name}</strong> (${partner.id}). Esta acción también eliminará sus transacciones.`,
+            (response) => {
+                if (response === true) {
+                    mdl.partner.removeItemById(partner.id);
+                    evt.target.closest("tr").remove();
+                }
+            },
+            evt.target
+        );
+    };
+    this.onFilterInputChange = () => {
+        var filterText = this.filterInput.value.trim().toLowerCase();
+        this.table.querySelectorAll("tbody tr").forEach((tr) => {
+            if (tr.textContent.toLowerCase().includes(filterText)) {
+                tr.style.display = "table-row";
+            } else {
+                tr.style.display = "none";
+            }
+        });
+    };
+    this.onPartnersChange = (arg) => {
+        if (arg.edit) {
+            var tr = this.table.querySelector(`[data-partner-id='${arg.edit.id}']`).closest("tr");
+            if (arg.edit.name) {
+                tr.querySelector(".name-td").innerHTML = arg.edit.name;
+            }
+        } else if (arg.add) {
+            this.addRow(arg.add);
+        }
+    };
 
-    for (var i = 0; i < model.currentPartner.charges.length; i++) {
-        var charge = model.currentPartner.charges[i];
-        var clone = partnerChargeContainerTmpl.cloneNode(true);
-        clone.querySelector(".charge-title-input").value = charge.title;
-        clone.querySelector(".charge-start-date-input").value = charge.startDate;
-        clone.querySelector(".charge-end-date-input").value = charge.endDate;
-        clone.querySelector(".charge-interval-input").value = charge.repetitionInterval;
-        clone.querySelector(".charge-amount-input").value = charge.amount.toFixed(2);
-        partnerChargesContainer.appendChild(clone);
-        clone.querySelector(".remove-charge-btn").addEventListener("click", onPartnerRemoveChargeBtnClick);
-    }
-}
+    this.addBtn.addEventListener("click", this.onAddBtnClick);
+    this.filterInput.addEventListener("input", this.onFilterInputChange);
+    pubsub.add("partners_change", this.onPartnersChange);
 
-partnerChargeContainerTmpl.remove();
-loadPartnersTable();
+    this.loadTable();
+};
 
-partnerAddBtn.addEventListener("click", onAddPartnerBtnClick);
-partnerAddChargeBtn.addEventListener("click", onAddPartnerChargeBtnClick);
-partnerSaveBtn.addEventListener("click", onSavePartnerBtnClick);
-partnersFilterInput.addEventListener("input", onPartnersFilterInputChange);
+var partnersPanel = new PartnersPanel(mdl, document.querySelector("#partners-panel"));

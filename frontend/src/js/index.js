@@ -41,8 +41,7 @@ var currentPopup;
 function openFormPopup (popup) {
     overlay.style.display = "block";
 
-    popup.style.display = "block";   
-    // popup.getBoundingClientRect() hack
+    popup.style.display = "block";
     popup.style.visibility = "visible";
 
     currentPopup = popup;
@@ -64,28 +63,97 @@ document.querySelectorAll(".popup .close-btn").forEach((node) => {
     node.addEventListener("click", closeFormPopup);
 });
 
+//POPUP COMMON
+function _centerPopup () {
+    // popup.getBoundingClientRect() hack
+    this.popup.style.visibility = "hidden";
+    this.popup.style.display = "block";
+
+    this.popup.style.right = `${(window.innerWidth - this.popup.getBoundingClientRect().width)/2}px`;
+    this.popup.style.top = `${window.scrollY + 10}px`;  
+}
+function _locateALongside (elm) {
+    // popup.getBoundingClientRect() hack
+    this.popup.style.visibility = "hidden";
+    this.popup.style.display = "block";
+
+    var viewportDistBelowTarget = window.innerHeight - elm.getBoundingClientRect().bottom;
+    if (viewportDistBelowTarget > this.popup.getBoundingClientRect().height) {
+        confirmationPopup.style.top = `${window.scrollY + elm.getBoundingClientRect().bottom + 5}px`;
+    } else {
+        confirmationPopup.style.top = `${window.scrollY + elm.getBoundingClientRect().top - this.popup.getBoundingClientRect().height - 5}px`;
+    }
+    this.popup.style.right = `${window.innerWidth - elm.getBoundingClientRect().right}px`;
+}
+
 // CONFIRMATION POPUP
+function ConfirmationPopup (popupElm) {
+    this.popup = popupElm;
+    this.msgNode = this.popup.querySelector(".confirm-message");
+    this.okBtn = this.popup.querySelector(".confirm-btn");
+    this.discardBtn = this.popup.querySelector(".discard-btn");
+    this.callbackFunc;
+
+    this.onOkBtnClick = () => {
+        this.callbackFunc(true);
+        closeFormPopup();
+    };
+    this.onDiscardBtnClick = () => {
+        this.callbackFunc(false);
+        closeFormPopup();
+    };
+    this.open = (msg, callbackFunc, alongsideElm) => {
+        this.callbackFunc = callbackFunc;
+        this.msgNode.innerHTML = msg;
+        if (alongsideElm) {
+            this.locateAlongside(alongsideElm);
+        } else {
+            this.center();
+        }
+        // console.log(this);
+        openFormPopup(this.popup);
+    };
+    this.center = _centerPopup;
+    this.locateAlongside = _locateALongside;
+
+    this.okBtn.addEventListener("click", this.onOkBtnClick);
+    this.discardBtn.addEventListener("click", this.onDiscardBtnClick);
+
+    return {
+        open: this.open
+    }
+}
+var confirmPopup = new ConfirmationPopup(document.querySelector("#confirmation-popup"));
+
 var confirmationPopup = document.querySelector("#confirmation-popup");
 var confirmPopupMessageNode = confirmationPopup.querySelector(".confirm-message");
 var confirmPopupOkBtn = confirmationPopup.querySelector(".confirm-btn");
 var confirmPopupDiscardBtn = confirmationPopup.querySelector(".discard-btn");
 var confirmPopupResolveCallback;
 
+function onConfirm () {
+    confirmPopupResolveCallback(true);
+    closeFormPopup();
+}
+function onDiscard () {
+    confirmPopupResolveCallback(false);
+    closeFormPopup();
+}
+
 function openConfirmPopup (message, resolveCallbackFunc) {
+    confirmPopupOkBtn.removeEventListener("click", onConfirm);
+    confirmPopupDiscardBtn.removeEventListener("click", onDiscard);
+
+    confirmPopupOkBtn.addEventListener("click", onConfirm);
+    confirmPopupDiscardBtn.addEventListener("click", onDiscard);
+
     confirmPopupResolveCallback = resolveCallbackFunc;
 
     confirmPopupMessageNode.innerHTML = message;
     openFormPopup(confirmationPopup);
 }
 
-confirmPopupOkBtn.addEventListener("click", () => {
-    confirmPopupResolveCallback(true);
-    closeFormPopup();
-});
-confirmPopupDiscardBtn.addEventListener("click", () => {
-    confirmPopupResolveCallback(false);
-    closeFormPopup();
-});
+
 
 // TABLE
 function clearTable (table) {

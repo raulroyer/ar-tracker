@@ -194,15 +194,15 @@ textarea.custom-input-1 {
 }
 
 #tx-form-popup div.form,
-#tx-ar-form-popup div.form {
+#ar-form-popup div.form {
     width: 345px;
     padding: 1.5em;
 }
 #tx-form-popup label,
-#tx-ar-form-popup label {
+#ar-form-popup label {
     width: 70px;
 }
-#tx-ar-form-popup input, #tx-ar-form-popup select,
+#ar-form-popup input, #ar-form-popup select,
 #tx-form-popup input, #tx-form-popup select {
     width: 18em;
 }
