@@ -155,12 +155,22 @@ function openConfirmPopup (message, resolveCallbackFunc) {
 
 
 
-// TABLE
-function clearTable (table) {
+// TABLE COMMON
+function _clearTable (table) {
     var tbody = table.querySelector("tbody");
     while(tbody.hasChildNodes()) {
         tbody.removeChild(tbody.firstChild);
     }
+}
+function _filterTable () {
+    var filterText = this.filterInput.value.trim().toLowerCase();
+    this.table.querySelectorAll("tbody tr").forEach((tr) => {
+        if (tr.textContent.toLowerCase().includes(filterText)) {
+            tr.style.display = "table-row";
+        } else {
+            tr.style.display = "none";
+        }
+    });
 }
 
 // INPUT

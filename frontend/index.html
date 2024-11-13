@@ -10,19 +10,19 @@
     <div id="app">
         <div class="top-container">
             <ul id="menu">
-                <li class="tx-link" data-section="tx">
+                <li data-section="ar">
                     Pagos
                 </li>
-                <li class="partners-link" data-section="partners">
+                <li data-section="partners">
                     Socios
                 </li>
             </ul>
         </div>
 
         <div class="main-container">
-            <div id="tx-panel" class="panel">
+            <div id="ar-panel" class="panel">
                 <div class="add-btn-container">
-                    <h3 class="panel-title">Transacciones</h3>
+                    <h3 class="panel-title">Cuentas por cobrar</h3>
                     <label class="custom-input-label-1">&#128269;</label>
                     <input type="text" class="filter-input custom-input-1" />
                     <button class="panel-add-btn custom-btn-1">+ Agregar</button>
@@ -30,12 +30,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Recibo</th>
+                            <th>ID</th>
                             <th>Socio</th>
                             <th>Tipo</th>
-                            <th>Método de pago</th>
                             <th>Monto</th>
-                            <th>Fecha</th>
+                            <th>Vencimiento</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,12 +42,11 @@
                             <td class="id-td">212446342</td>
                             <td class="partner-name-td">Raúl Royer</td>
                             <td class="type-td">Multa</td>
-                            <td class="payment-method-td">ACH</td>
                             <td class="amount-td">34.65</td>
                             <td class="date-td">2024/09/14</td>
                             <td class="btns-td">
-                                <button data-tx-id="1" class="edit-btn custom-btn-1">&#x270E;</button>
-                                <button data-tx-id="1" class="delete-btn custom-btn-1">&#10006;</button>
+                                <button data-ar-id="1" class="edit-btn custom-btn-1">&#x270E;</button>
+                                <button data-ar-id="1" class="delete-btn custom-btn-1">&#10006;</button>
                             </td>
                         </tr>
                     </tbody>
@@ -84,76 +82,6 @@
 
             <div id="overlay"></div>
 
-            <div id="tx-form-popup" class="popup">
-                <span class="popup-title">Transacción</span>
-                <button class="close-btn">&#10006;</button>
-                <div class="form">
-                    <div>
-                        <label class="custom-input-label-1">Categoría</label>
-                        <select class="category-input custom-input-1">
-                            <option value="pay">Pago de servicio</option>
-                            <option value="other-pay">Otro pago</option>
-                            <option value="ar">Cuenta x cobrar</option>
-                        </select>
-                    </div>
-                    <hr />
-                    <div data-category="pay,other-pay,ar">
-                        <label class="custom-input-label-1">ID</label>
-                        <input class="id-input custom-input-1" type="text" disabled />
-                    </div>
-                    <div data-category="other-pay">
-                        <label class="custom-input-label-1">Target Id</label>
-                        <input class="target-id-input custom-input-1" type="text" />
-                    </div>
-                    <div data-category="pay,other-pay,ar">
-                        <label class="custom-input-label-1">Socio</label>
-                        <select class="partner-input custom-input-1">
-                            <option>...</option>
-                        </select>
-                    </div>
-                    <div data-category="pay,other-pay,ar">
-                        <label class="custom-input-label-1">Tipo</label>
-                        <select class="type-input custom-input-1">
-                            <option>Servicio</option>
-                            <option>Multa</option>
-                            <option>Construcción</option>
-                            <option>Recargo</option>
-                            <option>Conexión</option>
-                            <option>Lote servido</option>
-                            <option>Ajuste</option>
-                            <option>Otros</option>
-                        </select>
-                    </div>
-                    <div data-category="pay,other-pay">
-                        <label class="custom-input-label-1">Método de pago</label>
-                        <!-- <input class="payment-method-input custom-input-1" type="text" /> -->
-                        <select class="payment-method-input custom-input-1">
-                            <option>ACH</option>
-                            <option>Depósito</option>
-                            <option>Otro</option>
-                        </select>
-                    </div>
-                    <div data-category="pay,other-pay,ar">
-                        <label class="custom-input-label-1">Monto</label>
-                        <input class="amount-input custom-input-1" type="text"
-                            inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
-                        />
-                    </div>
-                    <div data-category="pay,other-pay,ar">
-                        <label class="custom-input-label-1">Fecha</label>
-                        <input class="date-input custom-input-1" type="date" />
-                    </div>
-                    <div data-category="pay,other-pay,ar">
-                        <label class="custom-input-label-1">Observación</label>
-                        <br/>
-                        <textarea class="note-input custom-input-1"></textarea>
-                    </div>
-                    <div class="btn-container">
-                        <button class="save-btn custom-btn-1">Guardar</button>
-                    </div>
-                </div>
-            </div>
-
             <div id="ar-form-popup" class="popup">
                 <span class="popup-title">Cuenta por cobrar</span>
                 <button class="close-btn">&#10006;</button>
@@ -171,6 +99,7 @@
                     <div>
                         <label class="custom-input-label-1">Tipo</label>
                         <select class="type-input custom-input-1">
+                            <option>Mensualidad</option>
                             <option>Multa</option>
                             <option>Construcción</option>
                             <option>Recargo</option>
@@ -185,95 +114,24 @@
                             inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
                         />
                     </div>
-                    <div>
-                        <label class="custom-input-label-1">Fecha</label>
-                        <input class="date-input custom-input-1" type="date" />
+                    <div class="for-one-time-ar">
+                        <label class="custom-input-label-1">Vence</label>
+                        <input class="expiration-date-input custom-input-1" type="date" />
                     </div>
-                    <div>
-                        <label class="custom-input-label-1">Observación</label>
-                        <br/>
-                        <textarea class="note-input custom-input-1"></textarea>
+                    <div class="for-periodic-ar">
+                        <label class="custom-input-label-1">Inicia</label>
+                        <input class="start-date-input custom-input-1" type="date" />
                     </div>
-                    <div class="btn-container">
-                        <button class="save-btn custom-btn-1">Guardar</button>
+                    <div class="for-periodic-ar">
+                        <label class="custom-input-label-1">Finaliza</label>
+                        <input class="end-date-input custom-input-1" type="date" />
                     </div>
-                </div>
-            </div>
-
-            <div id="tx-service-form-popup" class="popup">
-                <span class="popup-title">Pago de servicio</span>
-                <button class="close-btn">&#10006;</button>
-                <div class="form">
-                    <div>
-                        <label class="custom-input-label-1">ID</label>
-                        <input class="id-input custom-input-1" type="text" disabled />
-                    </div>
-                    <div>
-                        <label class="custom-input-label-1">Socio</label>
-                        <select class="partner-input custom-input-1">
-                            <option>...</option>
+                    <div class="for-periodic-ar">
+                        <label class="custom-input-label-1">Cobrar</label>
+                        <select class="cycle-payment-type-input custom-input-1">
+                            <option value="cycle-start">Iniciando el mes</option>
+                            <option value="cycle-end">Finalizando el mes</option>
                         </select>
-                    </div>
-                    <div>
-                        <label class="custom-input-label-1">Método de pago</label>
-                        <!-- <input class="payment-method-input custom-input-1" type="text" /> -->
-                        <select class="payment-method-input custom-input-1">
-                            <option>ACH</option>
-                            <option>Depósito</option>
-                            <option>Otro</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="custom-input-label-1">Monto</label>
-                        <input class="amount-input custom-input-1" type="text"
-                            inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
-                        />
-                    </div>
-                    <div>
-                        <label class="custom-input-label-1">Fecha</label>
-                        <input class="date-input custom-input-1" type="date" />
-                    </div>
-                    <div>
-                        <label class="custom-input-label-1">Observación</label>
-                        <br/>
-                        <textarea class="note-input custom-input-1"></textarea>
-                    </div>
-                    <div class="btn-container">
-                        <button class="save-btn custom-btn-1">Guardar</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tx-other-form-popup" class="popup">
-                <span class="popup-title">Transacción</span>
-                <button class="close-btn">&#10006;</button>
-                <div class="form">
-                    <div>
-                        <label class="custom-input-label-1">ID</label>
-                        <input class="id-input custom-input-1" type="text" disabled />
-                    </div>
-                    <div>
-                        <label class="custom-input-label-1">Target Id</label>
-                        <input class="target-id-input custom-input-1" type="text" />
-                    </div>
-                    <div>
-                        <label class="custom-input-label-1">Método de pago</label>
-                        <!-- <input class="payment-method-input custom-input-1" type="text" /> -->
-                        <select class="payment-method-input custom-input-1">
-                            <option>ACH</option>
-                            <option>Depósito</option>
-                            <option>Otro</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="custom-input-label-1">Monto</label>
-                        <input class="amount-input custom-input-1" type="text"
-                            inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
-                        />
-                    </div>
-                    <div>
-                        <label class="custom-input-label-1">Fecha</label>
-                        <input class="date-input custom-input-1" type="date" />
                     </div>
                     <div>
                         <label class="custom-input-label-1">Observación</label>
@@ -312,16 +170,13 @@
         </div>
         
     </div>
-    <!-- <script src="./src/index.js"></script> -->
     <script src="./src/js/index.js"></script>
     <script src="./src/js/model.js"></script>
     <script src="./src/js/partners.js"></script>
     <script src="./src/js/ar.js"></script>
-    <script src="./src/js/tx.js"></script>
     <script src="./src/js/test.js"></script>
     <script>
-        setOpenedPanel("partners");
-        // onAddTxBtnClick();
+        setOpenedPanel("ar");
     </script>
 </body>
 </html>

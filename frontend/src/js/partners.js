@@ -21,12 +21,7 @@ var PartnerPopup = function (mdl, popupElm) {
         if (mdl.partner.currentItem.id) {
             // EDIT
             mdl.partner.currentItem.name = this.nameInput.value.trim();
-            pubsub.emit("partners_change", {
-                edit: {
-                    id: mdl.partner.currentItem.id,
-                    name: mdl.partner.currentItem.name
-                }
-            });
+            pubsub.emit("partners_change", { edit: [ mdl.partner.currentItem ] });
         } else {
             // INSERT
             var newPartner = {
@@ -56,6 +51,7 @@ var PartnersPanel = function (mdl, panelElm) {
     this.table = this.panel.querySelector("table");
     this.formPopup = new PartnerPopup(mdl, document.querySelector("#partner-form-popup"));
 
+    this.clearTable = _clearTable;
     this.addRow = (item) => {
         var tbody = this.table.querySelector("tbody");
         var tr = document.createElement("tr");
@@ -73,7 +69,7 @@ var PartnersPanel = function (mdl, panelElm) {
         tr.querySelector(".delete-btn").addEventListener("click", this.onDeleteBtnClick);
     };
     this.loadTable = () => {
-        clearTable(this.table);
+        this.clearTable(this.table);
     
         for (var i = 0; i < mdl.partner.list.length; i++) {
             this.addRow(mdl.partner.list[i]);
@@ -95,30 +91,30 @@ var PartnersPanel = function (mdl, panelElm) {
             (response) => {
                 if (response === true) {
                     mdl.partner.removeItemById(partner.id);
-                    evt.target.closest("tr").remove();
                 }
             },
             evt.target
         );
     };
-    this.onFilterInputChange = () => {
-        var filterText = this.filterInput.value.trim().toLowerCase();
-        this.table.querySelectorAll("tbody tr").forEach((tr) => {
-            if (tr.textContent.toLowerCase().includes(filterText)) {
-                tr.style.display = "table-row";
-            } else {
-                tr.style.display = "none";
-            }
-        });
-    };
+    this.onFilterInputChange = _filterTable.bind(this);
     this.onPartnersChange = (arg) => {
         if (arg.edit) {
-            var tr = this.table.querySelector(`[data-partner-id='${arg.edit.id}']`).closest("tr");
-            if (arg.edit.name) {
-                tr.querySelector(".name-td").innerHTML = arg.edit.name;
+            for (var item of arg.edit) {
+                var tr = this.table.querySelector(`[data-partner-id='${item.id}']`).closest("tr");
+                if (item.name) {
+                    tr.querySelector(".name-td").innerHTML = item.name;
+                }
             }
-        } else if (arg.add) {
-            this.addRow(arg.add);
+        }
+        if (arg.add) {
+            for (var item of arg.add) {
+                this.addRow(item);
+            }
+        }
+        if (arg.remove) {
+            for (var item of arg.remove) {
+                this.table.querySelector(`[data-partner-id='${item.id}']`).closest("tr").remove();
+            }
         }
     };
 

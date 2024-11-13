@@ -29,7 +29,7 @@ var pubsub = {
 function _addItem (eventName) {
     return function (item) {
         this.list.push(item);
-        pubsub.emit(eventName, { add: item });
+        pubsub.emit(eventName, { add: [ item ] });
     };
 }
 function _getItemById (id) {
@@ -52,7 +52,7 @@ function _removeItemById (eventName) {
         var removed;
         if (index != -1) {
             removed = this.list.splice(index, 1);
-            pubsub.emit(eventName, { remove: removed[0] });
+            pubsub.emit(eventName, { remove: removed });
         }
     };
 }
@@ -62,12 +62,12 @@ function _removeItemsByPartnerId (eventName) {
         for (var i = this.list.length -1; i >= 0; i--) {
             if (this.list[i].partner == partnerId) {
                 var removed = this.list.splice(i, 1);
-                ocurrences.push(removed);
+                ocurrences.push(removed[0]);
             }
         }
 
         if (ocurrences.length > 0) {
-            pubsub.emit(eventName, ocurrences);
+            pubsub.emit(eventName, { remove: ocurrences });
         }
     }
 }
@@ -95,23 +95,20 @@ function Partner () {
     this.nextNewItemId = _nextNewItemId;
 
     // private
-    this._getPartnerIdMap = function () {
+    this._getPartnerIdMap = () => {
         return this.list.reduce((partialResult, currentItem) => {
             partialResult[currentItem.id] = currentItem;
             return partialResult;
         }, {});
     };
-    this._onPartnersListChange = function () {
-        // refresh id map
-        this._partnerIdMap = this._getPartnerIdMap();
-    };
-
-    this._partnerIdMap = this._getPartnerIdMap();
-    pubsub.add("partners_change", (arg) => {
+    this._onPartnersListChange = (arg) => {
         if (arg.add !== undefined || arg.remove !== undefined) {
             this._partnerIdMap = this._getPartnerIdMap();
         }
-    });
+    };
+
+    this._partnerIdMap = this._getPartnerIdMap();
+    pubsub.add("partners_change", this._onPartnersListChange);
 
     return {
         currentItem: this.currentItem,
@@ -127,59 +124,58 @@ function Partner () {
 function AR () {
     this.currentItem = {
         id: null,
-        category: null,
         payId: null,
         partner: null,
         partnerName: "",
         type: null,
-        paymentMethod: null,
         amount: null,
-        date: null,
+        expirationDate: null,
+        cyclePaymentType: null,
+        startDate: null,
+        endDate: null,
         note: ""
-    },
+    };
     this.list = [
         {
             id: 1,
-            category: "ar",
             payId: null,
             partner: 1,
             type: "Multa",
-            paymentMethod: null,
             amount: 34.65,
-            date: "2024-09-14",
+            expirationDate: "2024-09-14",
+            cyclePaymentType: null,
+            startDate: null,
+            endDate: null,
             note: "",
         },
         {
             id: 2,
-            category: "ar",
             payId: null,
             partner: 2,
             type: "Conexión",
-            paymentMethod: null,
             amount: 15.33,
-            date: "2024-10-14",
+            expirationDate: "2024-10-14",
+            cyclePaymentType: null,
+            startDate: null,
+            endDate: null,
             note: "lsdskl aslkdjas aslkd askl; as;dasd k;sa"
         }
-    ],
-    this.addItem = function (item) {
-        this.list.push(item);
+    ];
+    this.addItem = _addItem("ar_change");;
+    this.getItemById = _getItemById;
+    this.removeItemById = _removeItemById("ar_change");
+    this.removeItemByPartnerId = _removeItemsByPartnerId("ar_change");
+    this.nextNewItemId = _nextNewItemId;
 
-        // refresh id map
-        this._partnerIdMap = this._getPartnerIdMap();
-        pubsub.emit("partners_change", { add: item });
-    },
-    this.getItemById = _getItemById,
-    this.removeItemById = _removeItemById("removePartner"),
-    this.nextNewItemId = _nextNewItemId,
+    this.onPartnersListChange = function (evt) {
+        if (evt.remove) {
+            for (var item of evt.remove) {
+                this.removeItemByPartnerId(item.id);
+            }
+        }
+    };
 
-    // private
-    this._getPartnerIdMap = function () {
-        return this.list.reduce((partialResult, currentItem) => {
-            partialResult[currentItem.id] = currentItem;
-            return partialResult;
-        }, {});
-    }
-    this._partnerIdMap = this._getPartnerIdMap();
+    pubsub.add("partners_change", this.onPartnersListChange.bind(this));
 
     return {
         currentItem: this.currentItem,
@@ -187,63 +183,23 @@ function AR () {
         addItem: this.addItem,
         getItemById: this.getItemById,
         removeItemById: this.removeItemById,
+        removeItemByPartnerId: this.removeItemByPartnerId,
         nextNewItemId: this.nextNewItemId
     };
 }
 
 // Model
-function Mdl () {
-    this.partner = Partner();
-
-    this.ar = {
-        currentItem: {
-            id: null,
-            category: null,
-            payId: null,
-            partner: null,
-            partnerName: "",
-            type: null,
-            paymentMethod: null,
-            amount: null,
-            date: null,
-            note: ""
-        },
-        list: [
-            {
-                id: 1,
-                category: "ar",
-                payId: null,
-                partner: 1,
-                type: "Multa",
-                paymentMethod: null,
-                amount: 34.65,
-                date: "2024-09-14",
-                note: "",
-            },
-            {
-                id: 2,
-                category: "ar",
-                payId: null,
-                partner: 2,
-                type: "Conexión",
-                paymentMethod: null,
-                amount: 15.33,
-                date: "2024-10-14",
-                note: "lsdskl aslkdjas aslkd askl; as;dasd k;sa"
-            }
-        ],
-        getItemById: _getItemById,
-        removeItemById: _removeItemById("removeAR"),
-        removeItemByPartnerId: _removeItemsByPartnerId("removeAR"),
-        nextNewItemId: _nextNewItemId
-    };
+function Mdl (pubsub) {
+    this.pubsub = pubsub;
+    this.partner = new Partner();
+    this.ar = new AR();
 
     return {
-        partner: partner,
-        ar: ar,
-        pubsub: pubsub
+        partner: this.partner,
+        ar: this.ar,
+        pubsub: this.pubsub
     }
 }
 
-var mdl = Mdl();
+var mdl = new Mdl(pubsub);
 
