@@ -67,7 +67,6 @@ var ArPopup = function (mdl, popupElm) {
             pubsub.emit("ar_change", { edit: [ mdl.ar.currentItem ] });
         } else {
             // INSERT
-            console.log(this.partnerInput.value);
             var newAR = {
                 id: mdl.ar.nextNewItemId(),
                 partner: parseInt(this.partnerInput.value),
@@ -111,7 +110,7 @@ var ArPanel = function (mdl, panelElm) {
 
         tr.innerHTML = `
             <td>${item.id}</td>
-            <td class="partner-name-td">${partner.name}</td>
+            <td class="partner-name-td" data-partner="${partner.id}">${partner.name}</td>
             <td class="type-td">${item.type}</td>
             <td class="amount-td">${item.amount}</td>
             <td class="date-td">${item.expirationDate}</td>
@@ -187,11 +186,22 @@ var ArPanel = function (mdl, panelElm) {
             }
         }
     };
+    this.onPartnersChange = (arg) => {
+        if (arg.edit) {
+            for (var partner of arg.edit) {
+                this.table.querySelectorAll(`[data-partner='${partner.id}']`).forEach((elm) => {
+                    var tr = elm.closest("tr");
+                    tr.querySelector(".partner-name-td").innerHTML = partner.name;
+                });
+            }
+        }
+    };
 
     this.loadTable();
     this.addBtn.addEventListener("click", this.onAddBtnClick);
     this.filterInput.addEventListener("input", this.onFilterInputChange);
     pubsub.add("ar_change", this.onArChange);
+    pubsub.add("partners_change", this.onPartnersChange);
 };
 
 var arPanel = new ArPanel(mdl, document.querySelector("#ar-panel"));
