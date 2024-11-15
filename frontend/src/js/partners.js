@@ -4,20 +4,45 @@ var PartnerPopup = function (mdl, popupElm) {
     this.idInput = this.popup.querySelector(".id-input");
     this.nameInput = this.popup.querySelector(".name-input");
     this.saveBtn = this.popup.querySelector(".save-btn");
+    this.closeBtn = this.popup.querySelector(".close-btn");
+    this.overlayElm = document.createElement("div");
 
     this.load = () => {
         this.idInput.value = mdl.partner.currentItem.id;
         this.nameInput.value = mdl.partner.currentItem.name;
     };
-    this.open = () => {
+    this.open = (config) => {
         this.load();
         this.center();
-        openFormPopup(this.popup);
+
+        this.popup.parentElement.append(this.popup);
+
+        if (config && config.overlay === true) {
+            this.popup.before(this.overlayElm);
+            this.overlayElm.style.display = "block";
+        }
+
+        this.popup.style.visibility = "visible";
+    };
+    this.close = () => {
+        this.overlayElm.remove();
+        this.popup.style.visibility = "hidden";
     };
     this.focus = () => {
         this.nameInput.focus();
     };
+    this.getFormErrors = () => {
+        var errors = {};
+        if (this.nameInput.value.trim() == "") {
+            errors["Nombre"] = [ "Sin definir" ];
+        }
+        return errors;
+    };
     this.onSaveBtnClick = () => {
+        if (Object.keys(this.getFormErrors()).length > 0) {
+            alertPopup.open(JSON.stringify(this.getFormErrors(), null, 3), { overlay: true });
+            return;
+        }
         if (mdl.partner.currentItem.id) {
             // EDIT
             mdl.partner.currentItem.name = this.nameInput.value.trim();
@@ -31,11 +56,20 @@ var PartnerPopup = function (mdl, popupElm) {
             mdl.partner.addItem(newPartner);
             // el evento de que se agrego un partner se emite desde dentro del modelo
         }
-        closeFormPopup();
+        this.close();
+    };
+    this.onCloseBtnClick = () => {
+        this.close();
+    };
+    this.onOverlayClick = () => {
+        this.close();
     };
     this.center = _centerPopup;
 
+    this.overlayElm.classList.add("overlay");
+    this.overlayElm.addEventListener("click", this.onOverlayClick);
     this.saveBtn.addEventListener("click", this.onSaveBtnClick);
+    this.closeBtn.addEventListener("click", this.onCloseBtnClick);
 
     return {
         open: this.open,
@@ -77,12 +111,12 @@ var PartnersPanel = function (mdl, panelElm) {
     };
     this.onAddBtnClick = () => {
         mdl.partner.currentItem = { id: null, name: "" };
-        this.formPopup.open();
+        this.formPopup.open({ overlay: true });
         this.formPopup.focus(); 
     };
     this.onEditBtnClick = (evt) => {
         mdl.partner.currentItem = mdl.partner.getItemById(evt.target.dataset.partnerId);
-        this.formPopup.open();
+        this.formPopup.open({ overlay: true });
     }
     this.onDeleteBtnClick = (evt) => {
         var partner = mdl.partner.getItemById(evt.target.dataset.partnerId);
@@ -93,7 +127,10 @@ var PartnersPanel = function (mdl, panelElm) {
                     mdl.partner.removeItemById(partner.id);
                 }
             },
-            evt.target
+            {
+                alongsideElm: evt.target,
+                overlay: true
+            }
         );
     };
     this.onFilterInputChange = _filterTable.bind(this);

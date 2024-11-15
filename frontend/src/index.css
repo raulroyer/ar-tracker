@@ -77,14 +77,13 @@ td.btns-td button {
     margin: 1em;
 }
 
-#overlay {
+.overlay {
     display: none;
     position: fixed;
     left: 0px;
     top: 0px;
     width: 100%;
     height: 100%;
-    z-index: 10;
     background-color: black;
     opacity: 0.2;
 }
@@ -92,11 +91,9 @@ td.btns-td button {
 .popup {
     display: none;
     position: absolute;
-    /* border: 1px solid rgb(72, 184, 244); */
     border-radius: 0.5em;
     background-color: white;
     box-shadow: 0em 0em 1em gray;
-    z-index: 11;
 }
 .popup .popup-title {
     display: inline-block;
@@ -172,11 +169,12 @@ textarea.custom-input-1 {
 }
 
 
-#confirmation-popup {
+#confirmation-popup, #alert-popup {
     width: 400px;
     padding: 1.5em;
 }
-#confirmation-popup .confirm-message {
+#confirmation-popup .confirm-message,
+#alert-popup .alert-message {
     display: inline-block;
     margin-bottom: 1em;
 }

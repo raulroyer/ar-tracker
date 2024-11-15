@@ -11,6 +11,8 @@ var ArPopup = function (mdl, popupElm) {
     this.endDateInput = this.popup.querySelector(".end-date-input");
     this.noteInput = this.popup.querySelector(".note-input");
     this.saveBtn = this.popup.querySelector(".save-btn");
+    this.closeBtn = this.popup.querySelector(".close-btn");
+    this.overlayElm = document.createElement("div");
 
     this.load = () => {
         var htmlOptionsString = mdl.partner.list.
@@ -36,10 +38,22 @@ var ArPopup = function (mdl, popupElm) {
 
         this.refreshFieldsVisibility();
     };
-    this.open = () => {
+    this.open = (config) => {
         this.load();
         this.center();
-        openFormPopup(this.popup);
+
+        this.popup.parentElement.append(this.popup);
+
+        if (config && config.overlay === true) {
+            this.popup.before(this.overlayElm);
+            this.overlayElm.style.display = "block";
+        }
+
+        this.popup.style.visibility = "visible";
+    };
+    this.close = () => {
+        this.overlayElm.remove();
+        this.popup.style.visibility = "hidden";
     };
     this.refreshFieldsVisibility = () => {
         this.popup.querySelectorAll(".for-periodic-ar, .for-one-time-ar").forEach(elm => elm.style.display = "none" );
@@ -49,44 +63,95 @@ var ArPopup = function (mdl, popupElm) {
             this.popup.querySelectorAll(".for-one-time-ar").forEach(elm => elm.style.display = "block" );
         }
     };
+    this.getFormErrors = () => {
+        var errors = {};
+        if (this.partnerInput.value == "") {
+            errors["Socio"] = [ "Sin definir" ];
+        }
+        if (this.typeInput.value == "") {
+            errors["Tipo"] = [ "Sin definir" ];
+        }
+        if (!positiveTwoDecimalAmountRegexp.test(this.amountInput.value)) {
+            errors["Monto"] = [ "No se cumple el formato" ];
+        }
+        if (this.typeInput.value === "Mensualidad") {
+            if (this.cyclePaymentTypeInput.value == "") {
+                errors["Momento del pago"] = [ "Sin definir" ];
+            }
+            if (this.startDateInput.value == "") {
+                errors["startDate"] = [ "Sin definir" ];
+            }
+        } else {
+            if (this.expirationDateInput.value == "") {
+                errors["expirationDate"] = [ "Sin definir" ];
+            }
+        }
+        return errors;
+    };
     this.onTypeInputChange = () => {
         this.refreshFieldsVisibility();
     };
     this.onSaveBtnClick = () => {
+        if (Object.keys(this.getFormErrors()).length > 0) {
+            alertPopup.open(JSON.stringify(this.getFormErrors(), null, 3), { overlay: true });
+            return;
+        }
         if (mdl.ar.currentItem.id) {
             // EDIT
             mdl.ar.currentItem.partner = parseInt(this.partnerInput.value);
             mdl.ar.currentItem.type = this.typeInput.value;
-            mdl.ar.currentItem.amount = this.amountInput.value;
-            mdl.ar.currentItem.expirationDate = this.expirationDateInput.value;
-            mdl.ar.currentItem.cyclePaymentType = this.cyclePaymentTypeInput.value;
-            mdl.ar.currentItem.startDate = this.startDateInput.value;
-            mdl.ar.currentItem.endDate = this.endDateInput.value;
+            mdl.ar.currentItem.amount = parseFloat(this.amountInput.value);
+            if (mdl.ar.currentItem.type === "Mensualidad") {
+                mdl.ar.currentItem.expirationDate = null;
+                mdl.ar.currentItem.cyclePaymentType = this.cyclePaymentTypeInput.value;
+                mdl.ar.currentItem.startDate = this.startDateInput.value;
+                mdl.ar.currentItem.endDate = this.endDateInput.value;
+            } else {
+                mdl.ar.currentItem.expirationDate = this.expirationDateInput.value;
+                mdl.ar.currentItem.cyclePaymentType = null;
+                mdl.ar.currentItem.startDate = null;
+                mdl.ar.currentItem.endDate = null;
+            }
             mdl.ar.currentItem.note = this.noteInput.value;
 
             pubsub.emit("ar_change", { edit: [ mdl.ar.currentItem ] });
         } else {
             // INSERT
-            var newAR = {
-                id: mdl.ar.nextNewItemId(),
-                partner: parseInt(this.partnerInput.value),
-                type: this.typeInput.value,
-                amount: this.amountInput.value,
-                expirationDate: this.expirationDateInput.value,
-                cyclePaymentType: this.cyclePaymentTypeInput.value,
-                startDate: this.startDateInput.value,
-                endDate: this.endDateInput.value,
-                note: this.noteInput.value
-            };
+            var newAR = { id: mdl.ar.nextNewItemId() };
+            newAR.partner = parseInt(this.partnerInput.value);
+            newAR.type = this.typeInput.value;
+            newAR.amount = parseFloat(this.amountInput.value);
+            if (newAR.type === "Mensualidad") {
+                newAR.expirationDate = this.expirationDateInput.value;
+                newAR.cyclePaymentType = null;
+                newAR.startDate = null;
+                newAR.endDate = null;
+            } else {
+                newAR.expirationDate = null;
+                newAR.cyclePaymentType = this.cyclePaymentTypeInput.value;
+                newAR.startDate = this.startDateInput.value;
+                newAR.endDate = this.endDateInput.value;
+            }
+            newAR.note = this.noteInput.value;
+
             mdl.ar.addItem(newAR);
             // el evento de que se agrego un partner se emite desde dentro del modelo
         }
-        closeFormPopup();
+        this.close();
+    };
+    this.onCloseBtnClick = () => {
+        this.close();
+    };
+    this.onOverlayClick = () => {
+        this.close();
     };
     this.center = _centerPopup;
 
+    this.overlayElm.classList.add("overlay");
+    this.overlayElm.addEventListener("click", this.onOverlayClick);
     this.typeInput.addEventListener("input", this.onTypeInputChange);
     this.saveBtn.addEventListener("click", this.onSaveBtnClick);
+    this.closeBtn.addEventListener("click", this.onCloseBtnClick);
 
     return {
         open: this.open
@@ -144,23 +209,26 @@ var ArPanel = function (mdl, panelElm) {
             endDate: null,
             note: ""
         };
-        this.formPopup.open();
+        this.formPopup.open({ overlay: true });
     };
     this.onEditBtnClick = (evt) => {
         mdl.ar.currentItem = mdl.ar.getItemById(evt.target.dataset.arId);
-        this.formPopup.open();
+        this.formPopup.open({ overlay: true });
     };
     this.onDeleteBtnClick = (evt) => {
         var ar = mdl.ar.getItemById(evt.target.dataset.arId);
         var partner = mdl.partner.getItemById(ar.partner);
         confirmPopup.open(
-            `Se va a eliminar la cuenta por cobrar <strong>(${ar.id} | ${partner.name} | ${ar.type} | $${ar.amount} | ${ar.date})</strong>.`,
+            `Se va a eliminar la cuenta por cobrar <strong>(${ar.id} | ${partner.name} | ${ar.type} | $${ar.amount} | ${ar.expirationDate})</strong>.`,
             (response) => {
                 if (response === true) {
                     mdl.partner.removeItemById(ar.id);
                 }
             },
-            evt.target
+            {
+                alongsideElm: evt.target,
+                overlay: true
+            }
         );
     };
     this.onFilterInputChange = _filterTable.bind(this);
