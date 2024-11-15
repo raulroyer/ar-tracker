@@ -14,7 +14,12 @@ var ArPopup = function (mdl, popupElm) {
     this.closeBtn = this.popup.querySelector(".close-btn");
     this.overlayElm = document.createElement("div");
 
-    this.load = () => {
+    this.load = (item) => {
+        if (item == null) {
+            item = mdl.ar.getBlankItem();
+            item.type = "Mensualidad"
+        }
+
         var htmlOptionsString = mdl.partner.list.
         sort((a, b) => {
             if (a.name > b.name) {
@@ -26,20 +31,20 @@ var ArPopup = function (mdl, popupElm) {
         map(partner => `<option value="${partner.id}">${partner.name}</option>`).join(" ");
         this.partnerInput.innerHTML = htmlOptionsString;
 
-        this.idInput.value = mdl.ar.currentItem.id;
-        this.partnerInput.value = mdl.ar.currentItem.partner;
-        this.typeInput.value = mdl.ar.currentItem.type;
-        this.amountInput.value = mdl.ar.currentItem.amount;
-        this.expirationDateInput.value = mdl.ar.currentItem.expirationDate;
-        this.cyclePaymentTypeInput.value = mdl.ar.currentItem.cyclePaymentType;
-        this.startDateInput.value = mdl.ar.currentItem.startDate;
-        this.endDateInput.value = mdl.ar.currentItem.endDate;
-        this.noteInput.value = mdl.ar.currentItem.note;
+        this.idInput.value = item.id;
+        this.partnerInput.value = item.partner;
+        this.typeInput.value = item.type;
+        this.amountInput.value = item.amount.toFixed(2);
+        this.expirationDateInput.value = item.expirationDate;
+        this.cyclePaymentTypeInput.value = item.cyclePaymentType;
+        this.startDateInput.value = item.startDate;
+        this.endDateInput.value = item.endDate;
+        this.noteInput.value = item.note;
 
         this.refreshFieldsVisibility();
     };
-    this.open = (config) => {
-        this.load();
+    this.open = (item, config) => {
+        this.load(item);
         this.center();
 
         this.popup.parentElement.append(this.popup);
@@ -57,10 +62,12 @@ var ArPopup = function (mdl, popupElm) {
     };
     this.refreshFieldsVisibility = () => {
         this.popup.querySelectorAll(".for-periodic-ar, .for-one-time-ar").forEach(elm => elm.style.display = "none" );
-        if (this.typeInput.value === "Mensualidad") {
-            this.popup.querySelectorAll(".for-periodic-ar").forEach(elm => elm.style.display = "block" );
-        } else {
-            this.popup.querySelectorAll(".for-one-time-ar").forEach(elm => elm.style.display = "block" );
+        if (this.typeInput.value !== "") {
+            if (this.typeInput.value === "Mensualidad") {
+                this.popup.querySelectorAll(".for-periodic-ar").forEach(elm => elm.style.display = "block" );
+            } else {
+                this.popup.querySelectorAll(".for-one-time-ar").forEach(elm => elm.style.display = "block" );
+            }
         }
     };
     this.getFormErrors = () => {
@@ -88,6 +95,27 @@ var ArPopup = function (mdl, popupElm) {
         }
         return errors;
     };
+    this.getFormItem = () => {
+        var formItem = {};
+        formItem.id = parseInt(this.idInput.value);
+        formItem.partner = parseInt(this.partnerInput.value);
+        formItem.type = this.typeInput.value;
+        formItem.amount = parseFloat(this.amountInput.value);
+        if (this.typeInput.value === "Mensualidad") {
+            formItem.expirationDate = null;
+            formItem.cyclePaymentType = this.cyclePaymentTypeInput.value;
+            formItem.startDate = this.startDateInput.value;
+            formItem.endDate = this.endDateInput.value;
+        } else {
+            formItem.expirationDate = this.expirationDateInput.value;
+            formItem.cyclePaymentType = null;
+            formItem.startDate = null;
+            formItem.endDate = null;
+        }
+        formItem.note = this.noteInput.value;
+
+        return formItem;
+    };
     this.onTypeInputChange = () => {
         this.refreshFieldsVisibility();
     };
@@ -96,46 +124,15 @@ var ArPopup = function (mdl, popupElm) {
             alertPopup.open(JSON.stringify(this.getFormErrors(), null, 3), { overlay: true });
             return;
         }
-        if (mdl.ar.currentItem.id) {
-            // EDIT
-            mdl.ar.currentItem.partner = parseInt(this.partnerInput.value);
-            mdl.ar.currentItem.type = this.typeInput.value;
-            mdl.ar.currentItem.amount = parseFloat(this.amountInput.value);
-            if (mdl.ar.currentItem.type === "Mensualidad") {
-                mdl.ar.currentItem.expirationDate = null;
-                mdl.ar.currentItem.cyclePaymentType = this.cyclePaymentTypeInput.value;
-                mdl.ar.currentItem.startDate = this.startDateInput.value;
-                mdl.ar.currentItem.endDate = this.endDateInput.value;
-            } else {
-                mdl.ar.currentItem.expirationDate = this.expirationDateInput.value;
-                mdl.ar.currentItem.cyclePaymentType = null;
-                mdl.ar.currentItem.startDate = null;
-                mdl.ar.currentItem.endDate = null;
-            }
-            mdl.ar.currentItem.note = this.noteInput.value;
 
-            pubsub.emit("ar_change", { edit: [ mdl.ar.currentItem ] });
+        var formItem = this.getFormItem();
+        if (this.idInput.value) {
+            // EDIT
+            mdl.ar.setItem(this.idInput.value, formItem);
         } else {
             // INSERT
-            var newAR = { id: mdl.ar.nextNewItemId() };
-            newAR.partner = parseInt(this.partnerInput.value);
-            newAR.type = this.typeInput.value;
-            newAR.amount = parseFloat(this.amountInput.value);
-            if (newAR.type === "Mensualidad") {
-                newAR.expirationDate = this.expirationDateInput.value;
-                newAR.cyclePaymentType = null;
-                newAR.startDate = null;
-                newAR.endDate = null;
-            } else {
-                newAR.expirationDate = null;
-                newAR.cyclePaymentType = this.cyclePaymentTypeInput.value;
-                newAR.startDate = this.startDateInput.value;
-                newAR.endDate = this.endDateInput.value;
-            }
-            newAR.note = this.noteInput.value;
-
-            mdl.ar.addItem(newAR);
-            // el evento de que se agrego un partner se emite desde dentro del modelo
+            formItem.id = mdl.ar.nextNewItemId();
+            mdl.ar.addItem(formItem);
         }
         this.close();
     };
@@ -155,7 +152,7 @@ var ArPopup = function (mdl, popupElm) {
 
     return {
         open: this.open
-    }
+    };
 };
 
 // PANEL
@@ -177,7 +174,7 @@ var ArPanel = function (mdl, panelElm) {
             <td>${item.id}</td>
             <td class="partner-name-td" data-partner="${partner.id}">${partner.name}</td>
             <td class="type-td">${item.type}</td>
-            <td class="amount-td">${item.amount}</td>
+            <td class="amount-td">${item.amount.toFixed(2)}</td>
             <td class="date-td">${item.expirationDate}</td>
             <td class="btns-td">
             <button data-ar-id="${item.id}" class="edit-btn custom-btn-1">&#x270E;</button>
@@ -196,24 +193,11 @@ var ArPanel = function (mdl, panelElm) {
         }
     };
     this.onAddBtnClick = () => {
-        mdl.ar.currentItem = {
-            id: null,
-            payId: null,
-            partner: null,
-            partnerName: "",
-            type: "Mensualidad",
-            amount: null,
-            expirationDate: null,
-            cyclePaymentType: "cycle-start",
-            startDate: null,
-            endDate: null,
-            note: ""
-        };
-        this.formPopup.open({ overlay: true });
+        this.formPopup.open(null, { overlay: true });
     };
     this.onEditBtnClick = (evt) => {
-        mdl.ar.currentItem = mdl.ar.getItemById(evt.target.dataset.arId);
-        this.formPopup.open({ overlay: true });
+        var selectedItem = mdl.ar.getItemById(evt.target.dataset.arId);
+        this.formPopup.open(selectedItem, { overlay: true });
     };
     this.onDeleteBtnClick = (evt) => {
         var ar = mdl.ar.getItemById(evt.target.dataset.arId);
@@ -239,7 +223,7 @@ var ArPanel = function (mdl, panelElm) {
                 var tr = this.table.querySelector(`[data-ar-id='${item.id}']`).closest("tr");
                 tr.querySelector(".partner-name-td").innerHTML = partner.name;
                 tr.querySelector(".type-td").innerHTML = item.type;
-                tr.querySelector(".amount-td").innerHTML = item.amount;
+                tr.querySelector(".amount-td").innerHTML = item.amount.toFixed(2);
                 tr.querySelector(".date-td").innerHTML = item.expirationDate;
             }
         }

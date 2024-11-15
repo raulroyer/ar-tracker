@@ -43,6 +43,28 @@ function _getItemById (id) {
         return this.list[index];
     }
 }
+function _setItem (fields, eventName) {
+    return function (id, change) {
+        var item = this.getItemById(id);
+        if (item) {
+            var changedApplied = false;
+            for (var field of fields) {
+                if (change[field]) {
+                    item[field] = change[field];
+                    changedApplied = true;
+                }
+            }
+
+            if (changedApplied) {
+                pubsub.emit(eventName, { edit: [ item ] });
+            }
+
+            return changedApplied;
+        } else {
+            return false;
+        }
+    };
+}
 function _removeItemById (eventName) {
     return function (id) {
         var index = this.list.findIndex((item) => {
@@ -122,17 +144,17 @@ function Partner () {
 
 // account receivable
 function AR () {
-    this.currentItem = {
+    this.blankItem = {
         id: null,
         payId: null,
         partner: null,
         partnerName: "",
-        type: null,
-        amount: null,
-        expirationDate: null,
-        cyclePaymentType: null,
-        startDate: null,
-        endDate: null,
+        type: "",
+        amount: 0,
+        expirationDate: "",
+        cyclePaymentType: "",
+        startDate: "",
+        endDate: "",
         note: ""
     };
     this.list = [
@@ -161,8 +183,12 @@ function AR () {
             note: "lsdskl aslkdjas aslkd askl; as;dasd k;sa"
         }
     ];
+    this.getBlankItem = () => {
+        return JSON.parse(JSON.stringify(this.blankItem));
+    };
     this.addItem = _addItem("ar_change");;
     this.getItemById = _getItemById;
+    this.setItem = _setItem(["partner", "type", "amount", "expirationDate", "cyclePaymentType", "startDate", "endDate", "note"], "ar_change");
     this.removeItemById = _removeItemById("ar_change");
     this.removeItemByPartnerId = _removeItemsByPartnerId("ar_change");
     this.nextNewItemId = _nextNewItemId;
@@ -178,10 +204,11 @@ function AR () {
     pubsub.add("partners_change", this.onPartnersListChange.bind(this));
 
     return {
-        currentItem: this.currentItem,
         list: this.list,
+        getBlankItem: this.getBlankItem,
         addItem: this.addItem,
         getItemById: this.getItemById,
+        setItem: this.setItem,
         removeItemById: this.removeItemById,
         removeItemByPartnerId: this.removeItemByPartnerId,
         nextNewItemId: this.nextNewItemId
