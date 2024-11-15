@@ -105,14 +105,21 @@ function _nextNewItemId () {
 
 // partner
 function Partner () {
-    this.currentItem = { id: null, name: "" };
+    this.blankItem = {
+        id: null,
+        name: ""
+    };
     this.list = [
         { id: 1, name: "Baggio" },
         { id: 2, name: "Lamine Yamal" },
         { id: 3, name: "Ferran Torres" }
     ];
+    this.getBlankItem = () => {
+        return JSON.parse(JSON.stringify(this.blankItem));
+    };
     this.addItem = _addItem("partners_change");
     this.getItemById = (id) => { return this._partnerIdMap[id] };
+    this.setItem = _setItem(["name"], "partners_change");
     this.removeItemById = _removeItemById("partners_change");
     this.nextNewItemId = _nextNewItemId;
 
@@ -133,10 +140,11 @@ function Partner () {
     pubsub.add("partners_change", this._onPartnersListChange);
 
     return {
-        currentItem: this.currentItem,
         list: this.list,
+        getBlankItem: this.getBlankItem,
         addItem: this.addItem,
         getItemById: this.getItemById,
+        setItem: this.setItem,
         removeItemById: this.removeItemById,
         nextNewItemId: this.nextNewItemId
     };
@@ -186,7 +194,7 @@ function AR () {
     this.getBlankItem = () => {
         return JSON.parse(JSON.stringify(this.blankItem));
     };
-    this.addItem = _addItem("ar_change");;
+    this.addItem = _addItem("ar_change");
     this.getItemById = _getItemById;
     this.setItem = _setItem(["partner", "type", "amount", "expirationDate", "cyclePaymentType", "startDate", "endDate", "note"], "ar_change");
     this.removeItemById = _removeItemById("ar_change");

@@ -7,12 +7,16 @@ var PartnerPopup = function (mdl, popupElm) {
     this.closeBtn = this.popup.querySelector(".close-btn");
     this.overlayElm = document.createElement("div");
 
-    this.load = () => {
-        this.idInput.value = mdl.partner.currentItem.id;
-        this.nameInput.value = mdl.partner.currentItem.name;
+    this.load = (item) => {
+        if (item == null) {
+            item = mdl.partner.getBlankItem();
+        }
+
+        this.idInput.value = item.id;
+        this.nameInput.value = item.name;
     };
-    this.open = (config) => {
-        this.load();
+    this.open = (item, config) => {
+        this.load(item);
         this.center();
 
         this.popup.parentElement.append(this.popup);
@@ -38,22 +42,24 @@ var PartnerPopup = function (mdl, popupElm) {
         }
         return errors;
     };
+    this.getFormItem = () => {
+        var formItem = {};
+        formItem.id = parseInt(this.idInput.value);
+        formItem.name = this.nameInput.value;
+        return formItem;
+    };
     this.onSaveBtnClick = () => {
         if (Object.keys(this.getFormErrors()).length > 0) {
             alertPopup.open(JSON.stringify(this.getFormErrors(), null, 3), { overlay: true });
             return;
         }
-        if (mdl.partner.currentItem.id) {
-            // EDIT
-            mdl.partner.currentItem.name = this.nameInput.value.trim();
-            pubsub.emit("partners_change", { edit: [ mdl.partner.currentItem ] });
+
+        var formItem = this.getFormItem();
+        if (this.idInput.value) {
+            mdl.partner.setItem(this.idInput.value, formItem);
         } else {
-            // INSERT
-            var newPartner = {
-                id: mdl.partner.nextNewItemId(),
-                name: this.nameInput.value.trim()
-            };
-            mdl.partner.addItem(newPartner);
+            formItem.id = mdl.partner.nextNewItemId();
+            mdl.partner.addItem(formItem);
             // el evento de que se agrego un partner se emite desde dentro del modelo
         }
         this.close();
@@ -110,13 +116,12 @@ var PartnersPanel = function (mdl, panelElm) {
         }
     };
     this.onAddBtnClick = () => {
-        mdl.partner.currentItem = { id: null, name: "" };
-        this.formPopup.open({ overlay: true });
+        this.formPopup.open(null, { overlay: true });
         this.formPopup.focus(); 
     };
     this.onEditBtnClick = (evt) => {
-        mdl.partner.currentItem = mdl.partner.getItemById(evt.target.dataset.partnerId);
-        this.formPopup.open({ overlay: true });
+        var selectedItem = mdl.partner.getItemById(evt.target.dataset.partnerId);
+        this.formPopup.open(selectedItem, { overlay: true });
     }
     this.onDeleteBtnClick = (evt) => {
         var partner = mdl.partner.getItemById(evt.target.dataset.partnerId);

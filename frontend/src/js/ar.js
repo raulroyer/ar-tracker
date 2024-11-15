@@ -127,10 +127,8 @@ var ArPopup = function (mdl, popupElm) {
 
         var formItem = this.getFormItem();
         if (this.idInput.value) {
-            // EDIT
             mdl.ar.setItem(this.idInput.value, formItem);
         } else {
-            // INSERT
             formItem.id = mdl.ar.nextNewItemId();
             mdl.ar.addItem(formItem);
         }
