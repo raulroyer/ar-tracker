@@ -37,7 +37,7 @@ function _centerPopup () {
     this.popup.style.visibility = "hidden";
     this.popup.style.display = "block";
 
-    this.popup.style.right = `${(window.innerWidth - this.popup.getBoundingClientRect().width)/2}px`;
+    this.popup.style.left = `${(window.innerWidth - this.popup.getBoundingClientRect().width)/2}px`;
     this.popup.style.top = `${window.scrollY + 10}px`;  
 }
 function _locateALongside (elm) {
@@ -189,3 +189,8 @@ var validateMoneyInput = function(e) {
 
 // VALIDATION
 var positiveTwoDecimalAmountRegexp = new RegExp('^[0-9]+.[0-9]{2}$');
+
+// DATE FORMAT
+function dateToYYYYMMDD (date) {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}

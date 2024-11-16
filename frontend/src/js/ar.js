@@ -49,6 +49,12 @@ var ArPopup = function (mdl, popupElm) {
 
         this.popup.parentElement.append(this.popup);
 
+        if (config && config.readonly === true) {
+            this.setReadOnlyMode(true);
+        } else {
+            this.setReadOnlyMode(false);
+        }
+
         if (config && config.overlay === true) {
             this.popup.before(this.overlayElm);
             this.overlayElm.style.display = "block";
@@ -59,6 +65,33 @@ var ArPopup = function (mdl, popupElm) {
     this.close = () => {
         this.overlayElm.remove();
         this.popup.style.visibility = "hidden";
+        pubsub.emit("ar-popup-close", { popup: this });
+    };
+    this.alignToTheLeft = () => {
+        this.popup.style.left = "5px";
+    };
+    this.setReadOnlyMode = (flag) => {
+        if (flag === true) {
+            this.partnerInput.setAttribute("disabled", true);
+            this.typeInput.setAttribute("disabled", true);
+            this.amountInput.setAttribute("readonly", true);
+            this.expirationDateInput.setAttribute("readonly", true);
+            this.cyclePaymentTypeInput.setAttribute("readonly", true);
+            this.startDateInput.setAttribute("readonly", true);
+            this.endDateInput.setAttribute("readonly", true);
+            this.noteInput.setAttribute("readonly", true);
+            this.saveBtn.setAttribute("disabled", true);
+        } else if (flag === false) {
+            this.partnerInput.removeAttribute("disabled");
+            this.typeInput.removeAttribute("disabled");
+            this.amountInput.removeAttribute("readonly");
+            this.expirationDateInput.removeAttribute("readonly");
+            this.cyclePaymentTypeInput.removeAttribute("readonly");
+            this.startDateInput.removeAttribute("readonly");
+            this.endDateInput.removeAttribute("readonly");
+            this.noteInput.removeAttribute("readonly");
+            this.saveBtn.removeAttribute("disabled");
+        }
     };
     this.refreshFieldsVisibility = () => {
         this.popup.querySelectorAll(".for-periodic-ar, .for-one-time-ar").forEach(elm => elm.style.display = "none" );
@@ -116,6 +149,9 @@ var ArPopup = function (mdl, popupElm) {
 
         return formItem;
     };
+    this.isClosed = () => {
+        return this.popup.style.visibility === "hidden";
+    };
     this.onTypeInputChange = () => {
         this.refreshFieldsVisibility();
     };
@@ -149,7 +185,11 @@ var ArPopup = function (mdl, popupElm) {
     this.closeBtn.addEventListener("click", this.onCloseBtnClick);
 
     return {
-        open: this.open
+        open: this.open,
+        close: this.close,
+        isClosed: this.isClosed,
+        alignToTheLeft: this.alignToTheLeft,
+        setReadOnlyMode: this.setReadOnlyMode
     };
 };
 
@@ -160,6 +200,7 @@ var ArPanel = function (mdl, panelElm) {
     this.addBtn = this.panel.querySelector(".panel-add-btn");
     this.table = this.panel.querySelector("table");
     this.formPopup = new ArPopup(mdl, document.querySelector("#ar-form-popup"));
+    this.payFormPopup = new PaymentPopup(mdl, document.querySelector("#payment-form-popup"));
 
     this.clearTable = _clearTable;
     this.addRow = (item) => {
@@ -176,11 +217,13 @@ var ArPanel = function (mdl, panelElm) {
             <td class="date-td">${item.expirationDate}</td>
             <td class="btns-td">
             <button data-ar-id="${item.id}" class="edit-btn custom-btn-1">&#x270E;</button>
+            <button data-ar-id="${item.id}" class="pay-btn custom-btn-1">&#128178;</button>
             <button data-ar-id="${item.id}" class="delete-btn custom-btn-1">&#10006;</button>
             </td>`;
         tbody.appendChild(tr);
     
         tr.querySelector(".edit-btn").addEventListener("click", this.onEditBtnClick);
+        tr.querySelector(".pay-btn").addEventListener("click", this.onPayBtnClick);
         tr.querySelector(".delete-btn").addEventListener("click", this.onDeleteBtnClick);
     };
     this.loadTable = () => {
@@ -196,6 +239,18 @@ var ArPanel = function (mdl, panelElm) {
     this.onEditBtnClick = (evt) => {
         var selectedItem = mdl.ar.getItemById(evt.target.dataset.arId);
         this.formPopup.open(selectedItem, { overlay: true });
+    };
+    this.onPayBtnClick = (evt) => {
+        var selectedItem = mdl.ar.getItemById(evt.target.dataset.arId);
+        this.formPopup.open(selectedItem, { overlay: true });
+        this.formPopup.setReadOnlyMode(true);
+        this.formPopup.alignToTheLeft();
+
+        var payment = mdl.payment.getBlankItem();
+        payment.arId = selectedItem.id;
+        payment.amount = selectedItem.amount;
+        payment.date = dateToYYYYMMDD(new Date());
+        this.payFormPopup.open(payment, { overlay: false });
     };
     this.onDeleteBtnClick = (evt) => {
         var ar = mdl.ar.getItemById(evt.target.dataset.arId);
@@ -246,12 +301,25 @@ var ArPanel = function (mdl, panelElm) {
             }
         }
     };
+    this.onArPopupClose = () => {
+        // en muchos escenarios payFormPopup no está abierto pero no pasa nada
+        if (!this.payFormPopup.isClosed()) {
+            this.payFormPopup.close();
+        }
+    };
+    this.onPaymentPopupClose = () => {
+        if (!this.formPopup.isClosed()) {
+            this.formPopup.close();
+        }
+    };
 
     this.loadTable();
     this.addBtn.addEventListener("click", this.onAddBtnClick);
     this.filterInput.addEventListener("input", this.onFilterInputChange);
     pubsub.add("ar_change", this.onArChange);
     pubsub.add("partners_change", this.onPartnersChange);
+    pubsub.add("ar-popup-close", this.onArPopupClose);
+    pubsub.add("payment-popup-close", this.onPaymentPopupClose);
 };
 
 var arPanel = new ArPanel(mdl, document.querySelector("#ar-panel"));

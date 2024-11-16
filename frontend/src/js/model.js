@@ -93,6 +93,21 @@ function _removeItemsByPartnerId (eventName) {
         }
     }
 }
+function _removeItemsByArId (eventName) {
+    return function (arId) {
+        var ocurrences = [];
+        for (var i = this.list.length -1; i >= 0; i--) {
+            if (this.list[i].arId == arId) {
+                var removed = this.list.splice(i, 1);
+                ocurrences.push(removed[0]);
+            }
+        }
+
+        if (ocurrences.length > 0) {
+            pubsub.emit(eventName, { remove: ocurrences });
+        }
+    }
+}
 function _nextNewItemId () {
     var id = 1;
     for (var item of this.list) {
@@ -103,7 +118,7 @@ function _nextNewItemId () {
     return id;
 }
 
-// partner
+// PARTNERS MODEL
 function Partner () {
     this.blankItem = {
         id: null,
@@ -123,7 +138,6 @@ function Partner () {
     this.removeItemById = _removeItemById("partners_change");
     this.nextNewItemId = _nextNewItemId;
 
-    // private
     this._getPartnerIdMap = () => {
         return this.list.reduce((partialResult, currentItem) => {
             partialResult[currentItem.id] = currentItem;
@@ -150,7 +164,7 @@ function Partner () {
     };
 }
 
-// account receivable
+// ACCOUNT RECEIVABLES MODEL
 function AR () {
     this.blankItem = {
         id: null,
@@ -159,6 +173,7 @@ function AR () {
         partnerName: "",
         type: "",
         amount: 0,
+        balance: 0,
         expirationDate: "",
         cyclePaymentType: "",
         startDate: "",
@@ -223,18 +238,77 @@ function AR () {
     };
 }
 
-// Model
+// PAYMENTS MODEL
+function Payment () {
+    this.blankItem = {
+        id: null,
+        arId: "",
+        amount: 0,
+        date: "",
+        note: ""
+    };
+    this.list = [
+        {
+            id: 1,
+            arId: 2,
+            amount: 2.00,
+            date: "2024-10-14",
+            note: ""
+        },
+        {
+            id: 2,
+            arId: 1,
+            amount: 23.00,
+            date: "2024-11-15",
+            note: ""
+        }
+    ];
+    this.getBlankItem = () => {
+        return JSON.parse(JSON.stringify(this.blankItem));
+    };
+    this.addItem = _addItem("payments_change");
+    this.getItemById = _getItemById;
+    this.setItem = _setItem(["arId", "amount", "date", "note"], "payments_change");
+    this.removeItemById = _removeItemById("payments_change");
+    this.removeItemByArId = _removeItemsByArId("payments_change");
+    this.nextNewItemId = _nextNewItemId;
+
+    this.onArListChange = function (evt) {
+        if (evt.remove) {
+            for (var item of evt.remove) {
+                this.removeItemByArId(item.id);
+            }
+        }
+    };
+
+    pubsub.add("ar_change", this.onArListChange.bind(this));
+
+    return {
+        list: this.list,
+        getBlankItem: this.getBlankItem,
+        addItem: this.addItem,
+        getItemById: this.getItemById,
+        setItem: this.setItem,
+        removeItemById: this.removeItemById,
+        removeItemByArId: this.removeItemByArId,
+        nextNewItemId: this.nextNewItemId
+    };
+}
+
+
+// MODEL
 function Mdl (pubsub) {
     this.pubsub = pubsub;
     this.partner = new Partner();
     this.ar = new AR();
+    this.payment = new Payment();
 
     return {
         partner: this.partner,
         ar: this.ar,
+        payment: this.payment,
         pubsub: this.pubsub
     }
 }
-
 var mdl = new Mdl(pubsub);
 

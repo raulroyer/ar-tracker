@@ -192,7 +192,8 @@ textarea.custom-input-1 {
 }
 
 #tx-form-popup div.form,
-#ar-form-popup div.form {
+#ar-form-popup div.form,
+#payment-form-popup div.form {
     width: 345px;
     padding: 1.5em;
 }
