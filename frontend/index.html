@@ -33,7 +33,7 @@
                             <th>ID</th>
                             <th>Socio</th>
                             <th>Tipo</th>
-                            <th>Monto</th>
+                            <th>Saldo</th>
                             <th>Vencimiento</th>
                         </tr>
                     </thead>
@@ -110,6 +110,12 @@
                     <div>
                         <label class="custom-input-label-1">Monto</label>
                         <input class="amount-input custom-input-1" type="text"
+                            inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
+                        />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Saldo</label>
+                        <input class="balance-input custom-input-1" type="text" readonly
                             inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
                         />
                     </div>

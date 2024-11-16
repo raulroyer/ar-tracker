@@ -49,7 +49,7 @@ function _setItem (fields, eventName) {
         if (item) {
             var changedApplied = false;
             for (var field of fields) {
-                if (change[field]) {
+                if (typeof change[field] !== "undefined") {
                     item[field] = change[field];
                     changedApplied = true;
                 }
@@ -187,6 +187,7 @@ function AR () {
             partner: 1,
             type: "Multa",
             amount: 34.65,
+            balance: 34.65,
             expirationDate: "2024-09-14",
             cyclePaymentType: null,
             startDate: null,
@@ -199,6 +200,7 @@ function AR () {
             partner: 2,
             type: "Conexión",
             amount: 15.33,
+            balance: 15.33,
             expirationDate: "2024-10-14",
             cyclePaymentType: null,
             startDate: null,
@@ -211,7 +213,7 @@ function AR () {
     };
     this.addItem = _addItem("ar_change");
     this.getItemById = _getItemById;
-    this.setItem = _setItem(["partner", "type", "amount", "expirationDate", "cyclePaymentType", "startDate", "endDate", "note"], "ar_change");
+    this.setItem = _setItem(["partner", "type", "amount", "balance", "expirationDate", "cyclePaymentType", "startDate", "endDate", "note"], "ar_change");
     this.removeItemById = _removeItemById("ar_change");
     this.removeItemByPartnerId = _removeItemsByPartnerId("ar_change");
     this.nextNewItemId = _nextNewItemId;
@@ -223,8 +225,19 @@ function AR () {
             }
         }
     };
+    this.onPaymentsListChange = function (evt) {
+        if (evt.add) {
+            for (var payment of evt.add) {
+                var arItem = this.getItemById(payment.arId);
+                var balance = arItem.balance - payment.amount;
+                balance = parseFloat(balance.toFixed(2));
+                this.setItem(payment.arId, { balance: balance});
+            }
+        }
+    };
 
     pubsub.add("partners_change", this.onPartnersListChange.bind(this));
+    pubsub.add("payments_change", this.onPaymentsListChange.bind(this));
 
     return {
         list: this.list,

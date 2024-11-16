@@ -5,6 +5,7 @@ var ArPopup = function (mdl, popupElm) {
     this.partnerInput = this.popup.querySelector(".partner-input");
     this.typeInput = this.popup.querySelector(".type-input");
     this.amountInput = this.popup.querySelector(".amount-input");
+    this.balanceInput = this.popup.querySelector(".balance-input");
     this.expirationDateInput = this.popup.querySelector(".expiration-date-input");
     this.cyclePaymentTypeInput = this.popup.querySelector(".cycle-payment-type-input");
     this.startDateInput = this.popup.querySelector(".start-date-input");
@@ -13,12 +14,14 @@ var ArPopup = function (mdl, popupElm) {
     this.saveBtn = this.popup.querySelector(".save-btn");
     this.closeBtn = this.popup.querySelector(".close-btn");
     this.overlayElm = document.createElement("div");
+    this.loadedItem;
 
     this.load = (item) => {
         if (item == null) {
             item = mdl.ar.getBlankItem();
             item.type = "Mensualidad"
         }
+        this.loadedItem = item;
 
         var htmlOptionsString = mdl.partner.list.
         sort((a, b) => {
@@ -35,6 +38,7 @@ var ArPopup = function (mdl, popupElm) {
         this.partnerInput.value = item.partner;
         this.typeInput.value = item.type;
         this.amountInput.value = item.amount.toFixed(2);
+        this.balanceInput.value = item.id ? item.balance.toFixed(2) : "";
         this.expirationDateInput.value = item.expirationDate;
         this.cyclePaymentTypeInput.value = item.cyclePaymentType;
         this.startDateInput.value = item.startDate;
@@ -134,6 +138,7 @@ var ArPopup = function (mdl, popupElm) {
         formItem.partner = parseInt(this.partnerInput.value);
         formItem.type = this.typeInput.value;
         formItem.amount = parseFloat(this.amountInput.value);
+        formItem.balance = parseFloat(this.balanceInput.value);
         if (this.typeInput.value === "Mensualidad") {
             formItem.expirationDate = null;
             formItem.cyclePaymentType = this.cyclePaymentTypeInput.value;
@@ -163,9 +168,11 @@ var ArPopup = function (mdl, popupElm) {
 
         var formItem = this.getFormItem();
         if (this.idInput.value) {
+            formItem.balance += formItem.amount - this.loadedItem.amount;
             mdl.ar.setItem(this.idInput.value, formItem);
         } else {
             formItem.id = mdl.ar.nextNewItemId();
+            formItem.balance = formItem.amount;
             mdl.ar.addItem(formItem);
         }
         this.close();
@@ -213,7 +220,7 @@ var ArPanel = function (mdl, panelElm) {
             <td>${item.id}</td>
             <td class="partner-name-td" data-partner="${partner.id}">${partner.name}</td>
             <td class="type-td">${item.type}</td>
-            <td class="amount-td">${item.amount.toFixed(2)}</td>
+            <td class="amount-td">${item.balance.toFixed(2)}</td>
             <td class="date-td">${item.expirationDate}</td>
             <td class="btns-td">
             <button data-ar-id="${item.id}" class="edit-btn custom-btn-1">&#x270E;</button>
@@ -248,7 +255,7 @@ var ArPanel = function (mdl, panelElm) {
 
         var payment = mdl.payment.getBlankItem();
         payment.arId = selectedItem.id;
-        payment.amount = selectedItem.amount;
+        payment.amount = selectedItem.balance;
         payment.date = dateToYYYYMMDD(new Date());
         this.payFormPopup.open(payment, { overlay: false });
     };
@@ -276,7 +283,7 @@ var ArPanel = function (mdl, panelElm) {
                 var tr = this.table.querySelector(`[data-ar-id='${item.id}']`).closest("tr");
                 tr.querySelector(".partner-name-td").innerHTML = partner.name;
                 tr.querySelector(".type-td").innerHTML = item.type;
-                tr.querySelector(".amount-td").innerHTML = item.amount.toFixed(2);
+                tr.querySelector(".amount-td").innerHTML = item.balance.toFixed(2);
                 tr.querySelector(".date-td").innerHTML = item.expirationDate;
             }
         }
