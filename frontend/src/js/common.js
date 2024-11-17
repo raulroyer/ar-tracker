@@ -194,3 +194,19 @@ var positiveTwoDecimalAmountRegexp = new RegExp('^[0-9]+.[0-9]{2}$');
 function dateToYYYYMMDD (date) {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
+function YYYYMMDDToDate (dateString) {
+    var dateSegments = dateString.split("-");
+    var date = new Date(
+        parseInt(dateSegments[0]),
+        parseInt(dateSegments[1]) - 1,
+        parseInt(dateSegments[2])
+    );
+    return date;
+}
+function nextDate (date) {
+    return new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate() + 1
+    );
+}

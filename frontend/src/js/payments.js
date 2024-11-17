@@ -72,6 +72,12 @@ var PaymentPopup = function (mdl, popupElm) {
         }
         if (this.dateInput.value == "") {
             errors["Fecha"] = [ "Sin definir" ];
+        } else {
+            var date = YYYYMMDDToDate(this.dateInput.value);
+
+            if (date.getTime() > Date.now()) {
+                errors["Fecha"] = [ "La fecha no puede ser superior a la actual" ];
+            }
         }
 
         return errors;

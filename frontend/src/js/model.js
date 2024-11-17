@@ -214,7 +214,17 @@ function AR () {
     this.removeItemById = _removeItemById("ar_change");
     this.removeItemByPartnerId = _removeItemsByPartnerId("ar_change");
     this.nextNewItemId = _nextNewItemId;
+    this.calcArState = (item) => {
+        if (item.balance == 0) {
+            return "paid";
+        }
 
+        var expDate = nextDate(YYYYMMDDToDate(item.expirationDate));
+        if (expDate.getTime() < (Date.now())) {
+            return "expired";
+        }
+        return "pending";
+    };
     this.onPartnersListChange = function (evt) {
         if (evt.remove) {
             for (var item of evt.remove) {
@@ -258,7 +268,8 @@ function AR () {
         setItem: this.setItem,
         removeItemById: this.removeItemById,
         removeItemByPartnerId: this.removeItemByPartnerId,
-        nextNewItemId: this.nextNewItemId
+        nextNewItemId: this.nextNewItemId,
+        calcArState: this.calcArState
     };
 }
 

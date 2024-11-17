@@ -130,6 +130,10 @@ var ArPopup = function (mdl, popupElm) {
         }
         if (!positiveTwoDecimalAmountRegexp.test(this.amountInput.value)) {
             errors["Monto"] = [ "No se cumple el formato" ];
+        } else {
+            if (parseFloat(this.amountInput.value) == 0) {
+                errors["Monto"] = [ "El monto no puede ser $0.00" ];
+            }
         }
         if (this.typeInput.value === "Mensualidad") {
             if (this.cyclePaymentTypeInput.value == "") {
@@ -228,6 +232,7 @@ var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
         var tr = document.createElement("tr");
     
         var partner = mdl.partner.getItemById(item.partner);
+        tr.setAttribute("class", mdl.ar.calcArState(item));
 
         tr.innerHTML = `
             <td class="id-td">${item.id}</td>
@@ -295,6 +300,7 @@ var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
             for (var item of arg.edit) {
                 var partner = mdl.partner.getItemById(item.partner);
                 var tr = this.table.querySelector(`[data-ar-id='${item.id}']`).closest("tr");
+                tr.setAttribute("class", mdl.ar.calcArState(item));
                 tr.querySelector(".partner-name-td").innerHTML = partner.name;
                 tr.querySelector(".type-td").innerHTML = item.type;
                 tr.querySelector(".amount-td").innerHTML = `<strong>${item.balance.toFixed(2)}</strong>/${item.amount.toFixed(2)}`;

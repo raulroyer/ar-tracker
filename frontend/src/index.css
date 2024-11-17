@@ -219,3 +219,13 @@ textarea.custom-input-1 {
 .charge-container input {
     width: 15em;
 }
+
+#ar-panel table tr.paid {
+    background: rgb(211, 255, 211);
+}
+#ar-panel table tr.pending {
+    background: white;
+}
+#ar-panel table tr.expired {
+    background: rgb(255, 188, 188);
+}
