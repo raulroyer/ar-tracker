@@ -168,7 +168,6 @@ function Partner () {
 function AR () {
     this.blankItem = {
         id: null,
-        payId: null,
         partner: null,
         partnerName: "",
         type: "",
@@ -183,7 +182,6 @@ function AR () {
     this.list = [
         {
             id: 1,
-            payId: null,
             partner: 1,
             type: "Multa",
             amount: 34.65,
@@ -196,7 +194,6 @@ function AR () {
         },
         {
             id: 2,
-            payId: null,
             partner: 2,
             type: "Conexión",
             amount: 15.33,
@@ -229,9 +226,23 @@ function AR () {
         if (evt.add) {
             for (var payment of evt.add) {
                 var arItem = this.getItemById(payment.arId);
-                var balance = arItem.balance - payment.amount;
-                balance = parseFloat(balance.toFixed(2));
-                this.setItem(payment.arId, { balance: balance});
+                var newBalance = arItem.balance - payment.amount;
+                newBalance = parseFloat(newBalance.toFixed(2));
+                this.setItem(payment.arId, { balance: newBalance});
+            }
+        }
+        if (evt.remove) {
+            for (var payment of evt.remove) {
+                var arItem = this.getItemById(payment.arId);
+                // si es null es porque no existe entonces no hay nada que recalcular
+                // esto seguramente ocurre porque cuando se borra una ar, posteriormente
+                // se borrarán los pagos asociados, esto a su vez ejecutara este evento,
+                // pero ya no es necesario, ni se puede volver a setear
+                if (arItem) {
+                    var newBalance = arItem.balance + payment.amount;
+                    newBalance = parseFloat(newBalance.toFixed(2));
+                    this.setItem(arItem.id, { balance: newBalance});
+                }
             }
         }
     };
@@ -261,20 +272,20 @@ function Payment () {
         note: ""
     };
     this.list = [
-        {
-            id: 1,
-            arId: 2,
-            amount: 2.00,
-            date: "2024-10-14",
-            note: ""
-        },
-        {
-            id: 2,
-            arId: 1,
-            amount: 23.00,
-            date: "2024-11-15",
-            note: ""
-        }
+        // {
+        //     id: 1,
+        //     arId: 2,
+        //     amount: 10.00,
+        //     date: "2024-10-14",
+        //     note: ""
+        // },
+        // {
+        //     id: 2,
+        //     arId: 1,
+        //     amount: 10.00,
+        //     date: "2024-11-15",
+        //     note: ""
+        // }
     ];
     this.getBlankItem = () => {
         return JSON.parse(JSON.stringify(this.blankItem));
@@ -323,5 +334,3 @@ function Mdl (pubsub) {
         pubsub: this.pubsub
     }
 }
-var mdl = new Mdl(pubsub);
-

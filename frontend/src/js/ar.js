@@ -59,6 +59,19 @@ var ArPopup = function (mdl, popupElm) {
             this.setReadOnlyMode(false);
         }
 
+        var isEditing = item && item.id !== null;
+        if (isEditing) {
+            this.partnerInput.setAttribute("disabled", true);
+            this.typeInput.setAttribute("disabled", true);
+            this.amountInput.setAttribute("disabled", true);
+            this.expirationDateInput.setAttribute("disabled", true);
+        } else {
+            this.partnerInput.removeAttribute("disabled");
+            this.typeInput.removeAttribute("disabled");
+            this.amountInput.removeAttribute("disabled");
+            this.expirationDateInput.removeAttribute("disabled");
+        }
+
         if (config && config.overlay === true) {
             this.popup.before(this.overlayElm);
             this.overlayElm.style.display = "block";
@@ -78,22 +91,22 @@ var ArPopup = function (mdl, popupElm) {
         if (flag === true) {
             this.partnerInput.setAttribute("disabled", true);
             this.typeInput.setAttribute("disabled", true);
-            this.amountInput.setAttribute("readonly", true);
-            this.expirationDateInput.setAttribute("readonly", true);
-            this.cyclePaymentTypeInput.setAttribute("readonly", true);
-            this.startDateInput.setAttribute("readonly", true);
-            this.endDateInput.setAttribute("readonly", true);
-            this.noteInput.setAttribute("readonly", true);
+            // this.amountInput.setAttribute("disabled", true);
+            this.expirationDateInput.setAttribute("disabled", true);
+            this.cyclePaymentTypeInput.setAttribute("disabled", true);
+            this.startDateInput.setAttribute("disabled", true);
+            this.endDateInput.setAttribute("disabled", true);
+            this.noteInput.setAttribute("disabled", true);
             this.saveBtn.setAttribute("disabled", true);
         } else if (flag === false) {
             this.partnerInput.removeAttribute("disabled");
             this.typeInput.removeAttribute("disabled");
-            this.amountInput.removeAttribute("readonly");
-            this.expirationDateInput.removeAttribute("readonly");
-            this.cyclePaymentTypeInput.removeAttribute("readonly");
-            this.startDateInput.removeAttribute("readonly");
-            this.endDateInput.removeAttribute("readonly");
-            this.noteInput.removeAttribute("readonly");
+            // this.amountInput.removeAttribute("disabled");
+            this.expirationDateInput.removeAttribute("disabled");
+            this.cyclePaymentTypeInput.removeAttribute("disabled");
+            this.startDateInput.removeAttribute("disabled");
+            this.endDateInput.removeAttribute("disabled");
+            this.noteInput.removeAttribute("disabled");
             this.saveBtn.removeAttribute("disabled");
         }
     };
@@ -201,13 +214,13 @@ var ArPopup = function (mdl, popupElm) {
 };
 
 // PANEL
-var ArPanel = function (mdl, panelElm) {
+var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
     this.panel = panelElm;
     this.filterInput = this.panel.querySelector(".filter-input");
     this.addBtn = this.panel.querySelector(".panel-add-btn");
     this.table = this.panel.querySelector("table");
-    this.formPopup = new ArPopup(mdl, document.querySelector("#ar-form-popup"));
-    this.payFormPopup = new PaymentPopup(mdl, document.querySelector("#payment-form-popup"));
+    this.formPopup = arFormPopup;
+    this.payFormPopup = paymentFormPoup;
 
     this.clearTable = _clearTable;
     this.addRow = (item) => {
@@ -217,14 +230,14 @@ var ArPanel = function (mdl, panelElm) {
         var partner = mdl.partner.getItemById(item.partner);
 
         tr.innerHTML = `
-            <td>${item.id}</td>
+            <td class="id-td">${item.id}</td>
             <td class="partner-name-td" data-partner="${partner.id}">${partner.name}</td>
             <td class="type-td">${item.type}</td>
-            <td class="amount-td">${item.balance.toFixed(2)}</td>
+            <td class="amount-td"><strong>${item.balance.toFixed(2)}</strong>/${item.amount.toFixed(2)}</td>
             <td class="date-td">${item.expirationDate}</td>
             <td class="btns-td">
             <button data-ar-id="${item.id}" class="edit-btn custom-btn-1">&#x270E;</button>
-            <button data-ar-id="${item.id}" class="pay-btn custom-btn-1">&#128178;</button>
+            <button data-ar-id="${item.id}" ${item.balance == 0 ? "disabled" : ""} class="pay-btn custom-btn-1">&#128178;</button>
             <button data-ar-id="${item.id}" class="delete-btn custom-btn-1">&#10006;</button>
             </td>`;
         tbody.appendChild(tr);
@@ -263,9 +276,10 @@ var ArPanel = function (mdl, panelElm) {
         var ar = mdl.ar.getItemById(evt.target.dataset.arId);
         var partner = mdl.partner.getItemById(ar.partner);
         confirmPopup.open(
-            `Se va a eliminar la cuenta por cobrar <strong>(${ar.id} | ${partner.name} | ${ar.type} | $${ar.amount} | ${ar.expirationDate})</strong>.`,
+            `Se va a eliminar la cuenta por cobrar <strong>(${ar.id} | ${partner.name} | ${ar.type} | $${ar.balance} | ${ar.expirationDate})</strong>.`,
             (response) => {
                 if (response === true) {
+                    console.log("qwrrwe");
                     mdl.partner.removeItemById(ar.id);
                 }
             },
@@ -283,8 +297,13 @@ var ArPanel = function (mdl, panelElm) {
                 var tr = this.table.querySelector(`[data-ar-id='${item.id}']`).closest("tr");
                 tr.querySelector(".partner-name-td").innerHTML = partner.name;
                 tr.querySelector(".type-td").innerHTML = item.type;
-                tr.querySelector(".amount-td").innerHTML = item.balance.toFixed(2);
+                tr.querySelector(".amount-td").innerHTML = `<strong>${item.balance.toFixed(2)}</strong>/${item.amount.toFixed(2)}`;
                 tr.querySelector(".date-td").innerHTML = item.expirationDate;
+                if (item.balance == 0) {
+                    tr.querySelector(".pay-btn").setAttribute("disabled", true);
+                } else {
+                    tr.querySelector(".pay-btn").removeAttribute("disabled");
+                }
             }
         }
         if (arg.add) {
@@ -328,5 +347,3 @@ var ArPanel = function (mdl, panelElm) {
     pubsub.add("ar-popup-close", this.onArPopupClose);
     pubsub.add("payment-popup-close", this.onPaymentPopupClose);
 };
-
-var arPanel = new ArPanel(mdl, document.querySelector("#ar-panel"));

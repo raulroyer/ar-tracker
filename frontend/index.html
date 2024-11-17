@@ -13,6 +13,9 @@
                 <li data-section="ar">
                     Cuentas por cobrar
                 </li>
+                <li data-section="payments">
+                    Pagos
+                </li>
                 <li data-section="partners">
                     Socios
                 </li>
@@ -33,7 +36,7 @@
                             <th>ID</th>
                             <th>Socio</th>
                             <th>Tipo</th>
-                            <th>Saldo</th>
+                            <th>Monto</th>
                             <th>Vencimiento</th>
                         </tr>
                     </thead>
@@ -48,6 +51,40 @@
                                 <button data-ar-id="1" class="edit-btn custom-btn-1">&#x270E;</button>
                                 <button data-ar-id="1" class="pay-btn custom-btn-1">&#128176;</button>
                                 <button data-ar-id="1" class="delete-btn custom-btn-1">&#10006;</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="payments-panel" class="panel">
+                <div class="add-btn-container">
+                    <h3 class="panel-title">Pagos</h3>
+                    <label class="custom-input-label-1">&#128269;</label>
+                    <input type="text" class="filter-input custom-input-1" />
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Socio</th>
+                            <th>CxC</th>
+                            <th>Tipo</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="id-td">212446342</td>
+                            <td class="partner-name-td" data-partner="1">Raúl Royer</td>
+                            <td class="ar-id-td">1</td>
+                            <td class="ar-type-td" data-ar="1">Multa</td>
+                            <td class="amount-td"><strong>34.65</strong>/50.00</td>
+                            <td class="date-td">2024/09/14</td>
+                            <td class="btns-td">
+                                <button data-payment-id="1" class="edit-btn custom-btn-1">&#x270E;</button>
+                                <button data-payment-id="1" class="delete-btn custom-btn-1">&#10006;</button>
                             </td>
                         </tr>
                     </tbody>
@@ -115,7 +152,7 @@
                     </div>
                     <div>
                         <label class="custom-input-label-1">Saldo</label>
-                        <input class="balance-input custom-input-1" type="text" readonly
+                        <input class="balance-input custom-input-1" type="text" disabled
                             inputmode="numeric" pattern="[0-9+-.]+" oninput="validateMoneyInput(this)"
                         />
                     </div>
@@ -215,11 +252,12 @@
         </div>
         
     </div>
-    <script src="./src/js/index.js"></script>
+    <script src="./src/js/common.js"></script>
     <script src="./src/js/model.js"></script>
     <script src="./src/js/partners.js"></script>
     <script src="./src/js/payments.js"></script>
     <script src="./src/js/ar.js"></script>
+    <script src="./src/js/index.js"></script>
     <script src="./src/js/test.js"></script>
     <script>
         setOpenedPanel("ar");

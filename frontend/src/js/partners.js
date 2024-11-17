@@ -166,5 +166,3 @@ var PartnersPanel = function (mdl, panelElm) {
 
     this.loadTable();
 };
-
-var partnersPanel = new PartnersPanel(mdl, document.querySelector("#partners-panel"));
