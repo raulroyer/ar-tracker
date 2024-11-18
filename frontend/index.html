@@ -5,10 +5,20 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>artracking</title>
     <link rel="stylesheet" href="./src/index.css">
+    <link rel="stylesheet" href="./src/assets/fonts/md-font.css" />
 </head>
 <body>
     <div id="app">
         <div class="top-container">
+            <button class="new-project-btn custom-btn-1">
+                <span class="material-symbols-outlined">backspace</span>
+            </button>
+            <button class="import-file-btn custom-btn-1">
+                <span class="material-symbols-outlined">folder_open</span>
+            </button>
+            <button class="save-file-btn custom-btn-1">
+                <span class="material-symbols-outlined">save</span>
+            </button>
             <ul id="menu">
                 <li data-section="ar">
                     Cuentas por cobrar
@@ -26,7 +36,9 @@
             <div id="ar-panel" class="panel">
                 <div class="add-btn-container">
                     <h3 class="panel-title">Cuentas por cobrar</h3>
-                    <label class="custom-input-label-1">&#128269;</label>
+                    <label class="custom-input-label-1">
+                        <span class="material-symbols-outlined">search</span>
+                    </label>
                     <input type="text" class="filter-input custom-input-1" />
                     <button class="panel-add-btn custom-btn-1">+ Agregar</button>
                 </div>
@@ -48,8 +60,12 @@
                             <td class="amount-td">34.65</td>
                             <td class="date-td">2024/09/14</td>
                             <td class="btns-td">
-                                <button data-ar-id="1" class="edit-btn custom-btn-1">&#x270E;</button>
-                                <button data-ar-id="1" class="pay-btn custom-btn-1">&#128176;</button>
+                                <button data-ar-id="1" class="edit-btn custom-btn-1">
+                                    <span class="material-symbols-outlined">stylus</span>
+                                </button>
+                                <button data-ar-id="1" class="pay-btn custom-btn-1">
+                                    <span class="material-symbols-outlined">attach_money</span>
+                                </button>
                                 <button data-ar-id="1" class="delete-btn custom-btn-1">&#10006;</button>
                             </td>
                         </tr>
@@ -60,7 +76,9 @@
             <div id="payments-panel" class="panel">
                 <div class="add-btn-container">
                     <h3 class="panel-title">Pagos</h3>
-                    <label class="custom-input-label-1">&#128269;</label>
+                    <label class="custom-input-label-1">
+                        <span class="material-symbols-outlined">search</span>
+                    </label>
                     <input type="text" class="filter-input custom-input-1" />
                 </div>
                 <table>
@@ -94,7 +112,9 @@
             <div id="partners-panel" class="panel">
                 <div class="add-btn-container">
                     <h3 class="panel-title">Socios</h3>
-                    <label class="custom-input-label-1">&#128269;</label>
+                    <label class="custom-input-label-1">
+                        <span class="material-symbols-outlined">search</span>
+                    </label>
                     <input type="text" class="filter-input custom-input-1" />
                     <button class="panel-add-btn custom-btn-1">+ Agregar</button>
                 </div>
@@ -257,10 +277,6 @@
     <script src="./src/js/partners.js"></script>
     <script src="./src/js/payments.js"></script>
     <script src="./src/js/ar.js"></script>
-    <script src="./src/js/index.js"></script>
-    <script src="./src/js/test.js"></script>
-    <script>
-        setOpenedPanel("ar");
-    </script>
+    <script src="./src/js/index.js" type="module"></script>
 </body>
 </html>

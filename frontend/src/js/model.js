@@ -125,9 +125,9 @@ function Partner () {
         name: ""
     };
     this.list = [
-        { id: 1, name: "Baggio" },
-        { id: 2, name: "Lamine Yamal" },
-        { id: 3, name: "Ferran Torres" }
+        // { id: 1, name: "Baggio" },
+        // { id: 2, name: "Lamine Yamal" },
+        // { id: 3, name: "Ferran Torres" }
     ];
     this.getBlankItem = () => {
         return JSON.parse(JSON.stringify(this.blankItem));
@@ -180,30 +180,30 @@ function AR () {
         note: ""
     };
     this.list = [
-        {
-            id: 1,
-            partner: 1,
-            type: "Multa",
-            amount: 34.65,
-            balance: 34.65,
-            expirationDate: "2024-09-14",
-            cyclePaymentType: null,
-            startDate: null,
-            endDate: null,
-            note: "",
-        },
-        {
-            id: 2,
-            partner: 2,
-            type: "Conexión",
-            amount: 15.33,
-            balance: 15.33,
-            expirationDate: "2024-10-14",
-            cyclePaymentType: null,
-            startDate: null,
-            endDate: null,
-            note: "lsdskl aslkdjas aslkd askl; as;dasd k;sa"
-        }
+        // {
+        //     id: 1,
+        //     partner: 1,
+        //     type: "Multa",
+        //     amount: 34.65,
+        //     balance: 34.65,
+        //     expirationDate: "2024-09-14",
+        //     cyclePaymentType: null,
+        //     startDate: null,
+        //     endDate: null,
+        //     note: "",
+        // },
+        // {
+        //     id: 2,
+        //     partner: 2,
+        //     type: "Conexión",
+        //     amount: 15.33,
+        //     balance: 15.33,
+        //     expirationDate: "2024-10-14",
+        //     cyclePaymentType: null,
+        //     startDate: null,
+        //     endDate: null,
+        //     note: "lsdskl aslkdjas aslkd askl; as;dasd k;sa"
+        // }
     ];
     this.getBlankItem = () => {
         return JSON.parse(JSON.stringify(this.blankItem));

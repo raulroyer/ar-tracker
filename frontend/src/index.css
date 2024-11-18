@@ -1,15 +1,21 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
+    margin: 0px;
 }
 .top-container {
-    border: 1px solid green;
+    /* border: 1px solid green; */
     text-align: right;
 }
 ul {
     display: inline-block;
     padding: 10px;
-    border: 1px solid green;
+    border: 1px solid #aca68a;
+    border-radius: 5px 5px 0px 0px;
+    margin: 0.5em 0.5em 0em 2em;
+    border-bottom: none;
+    padding-bottom: 1px;
+    vertical-align: middle;
 }
 .top-container #menu li {
     display: inline-block;
@@ -18,7 +24,13 @@ ul {
     cursor: pointer;
 }
 .top-container #menu li[selected] {
-    background-color: rgb(222, 237, 242);
+    background-color: #eceadf;
+    border-radius: 5px 5px 0px 0px;
+    padding-top: 0.5em;
+}
+.top-container .custom-btn-1 {
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
 }
 
 .filter-input::after {
@@ -38,7 +50,7 @@ th[colspan] {
 }
 
 tbody tr:nth-child(2n+1) {
-    background-color: rgb(232, 241, 245);
+    background-color: #eceadf;
 }
 
 th, td {
@@ -53,11 +65,14 @@ td.btns-td button {
     padding: 0.1em 0.5em;
     font-size: 1.5em;
     font-weight: bold;
+    border-color: lightgray;
+    border-width: 1px;
+    background: white;
 }
 
 
 .main-container .panel {
-    border: 1px solid red;
+    border-top: 1px solid #aca68a;
     margin-bottom: 1em;
     display: none;
 }
@@ -109,7 +124,7 @@ td.btns-td button {
     font-size: 2em;
     font-weight: bold;
     border: none;
-    color: rgb(72, 184, 244);
+    color: #aca68a;
 }
 .popup input, .popup select {
     width: 15em;
@@ -140,7 +155,7 @@ td.btns-td button {
 
 .custom-btn-1 {
     background: none;
-    border: 2px solid rgb(72, 184, 244);
+    border: 2px solid #aca68a;
     border-radius: 0.5em;
     padding: 0.5em 1em;
     cursor: pointer;
@@ -154,7 +169,7 @@ td.btns-td button {
 .custom-input-1 {
     margin-bottom: 1em;
     border: 1px solid black;
-    border-radius: 0.2em;
+    border-radius: 5px;
     height: 2em;
     font-size: 1em;
     padding-left: 0.5em;
@@ -166,6 +181,10 @@ textarea.custom-input-1 {
 .custom-input-1[disabled] {
     border: none;
     background: rgb(237, 234, 223);
+}
+
+.custom-input-1.filter-input {
+    margin-top: 1em;
 }
 
 
@@ -221,11 +240,15 @@ textarea.custom-input-1 {
 }
 
 #ar-panel table tr.paid {
-    background: rgb(211, 255, 211);
+    background: #a4c2a2;
 }
 #ar-panel table tr.pending {
-    background: white;
+    background: #eceadf;
 }
 #ar-panel table tr.expired {
-    background: rgb(255, 188, 188);
+    background: #ffd0d0;
+}
+
+.material-symbols-outlined {
+    vertical-align: middle;
 }

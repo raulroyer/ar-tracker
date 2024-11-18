@@ -241,9 +241,15 @@ var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
             <td class="amount-td"><strong>${item.balance.toFixed(2)}</strong>/${item.amount.toFixed(2)}</td>
             <td class="date-td">${item.expirationDate}</td>
             <td class="btns-td">
-            <button data-ar-id="${item.id}" class="edit-btn custom-btn-1">&#x270E;</button>
-            <button data-ar-id="${item.id}" ${item.balance == 0 ? "disabled" : ""} class="pay-btn custom-btn-1">&#128178;</button>
-            <button data-ar-id="${item.id}" class="delete-btn custom-btn-1">&#10006;</button>
+            <button data-ar-id="${item.id}" class="edit-btn custom-btn-1">
+                <span class="material-symbols-outlined">stylus</span>
+            </button>
+            <button data-ar-id="${item.id}" ${item.balance == 0 ? "disabled" : ""} class="pay-btn custom-btn-1">
+                <span class="material-symbols-outlined">attach_money</span>
+            </button>
+            <button data-ar-id="${item.id}" class="delete-btn custom-btn-1">
+                <span class="material-symbols-outlined">close</span>
+            </button>
             </td>`;
         tbody.appendChild(tr);
     
@@ -284,7 +290,6 @@ var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
             `Se va a eliminar la cuenta por cobrar <strong>(${ar.id} | ${partner.name} | ${ar.type} | $${ar.balance} | ${ar.expirationDate})</strong>.`,
             (response) => {
                 if (response === true) {
-                    console.log("qwrrwe");
                     mdl.partner.removeItemById(ar.id);
                 }
             },

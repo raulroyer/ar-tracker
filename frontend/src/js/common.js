@@ -1,36 +1,3 @@
-// MENU NAVIGATION
-var menuLinks = document.querySelectorAll("#menu li");
-var currentPanel;
-
-function setOpenedPanel (key) {
-    var selectedPanel = document.querySelector(`#${key}-panel`);
-    if (selectedPanel == null) {
-        console.log(`#${key}-panel not found`);
-        return;
-    }
-
-    if (currentPanel) {
-        currentPanel.removeAttribute("open");
-    }
-    selectedPanel.setAttribute("open", "");
-    currentPanel = selectedPanel;
-
-}
-
-function onMenuLinkClick (evt) {
-    setOpenedPanel(evt.target.dataset.section);
-
-    menuLinks.forEach((li) => {
-        li.removeAttribute("selected");
-    });
-    evt.target.setAttribute("selected", "");
-}
-
-menuLinks.forEach((li) => {
-    li.addEventListener("click", onMenuLinkClick);
-});
-
-
 //POPUP COMMON
 function _centerPopup () {
     // popup.getBoundingClientRect() hack

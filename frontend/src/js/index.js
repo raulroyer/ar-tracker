@@ -1,3 +1,7 @@
+// import '../index.css';
+
+import {Export, Import} from '../../wailsjs/go/main/App';
+
 var mdl = new Mdl(pubsub);
 
 var arPopup = new ArPopup(mdl, document.querySelector("#ar-form-popup"));
@@ -18,3 +22,168 @@ var paymentsPanel = new PaymentsPanel(
 
 var partnersPanel = new PartnersPanel(mdl, document.querySelector("#partners-panel"));
 
+
+
+// MENU NAVIGATION
+var menuLinks = document.querySelectorAll("#menu li");
+var currentPanel;
+
+function setOpenedPanel (key) {
+    var selectedPanel = document.querySelector(`#${key}-panel`);
+    if (selectedPanel == null) {
+        console.log(`#${key}-panel not found`);
+        return;
+    }
+
+    if (currentPanel) {
+        currentPanel.removeAttribute("open");
+    }
+    selectedPanel.setAttribute("open", "");
+    currentPanel = selectedPanel;
+
+}
+
+function onMenuLinkClick (evt) {
+    setOpenedPanel(evt.target.dataset.section);
+
+    menuLinks.forEach((li) => {
+        li.removeAttribute("selected");
+    });
+    evt.target.setAttribute("selected", "");
+}
+
+menuLinks.forEach((li) => {
+    li.addEventListener("click", onMenuLinkClick);
+});
+
+// GUARDA ARCHIVO
+function getNextTextChar (char) {
+    var code = char.charCodeAt(0);
+    code++;
+    if (code < 65 || 122 < code) {
+        code = 65;
+    } else if (90 < code && code < 97) {
+        code = 97;
+    }
+
+    return String.fromCharCode(code);
+}
+
+function clearProject () {
+    for (var i = mdl.partner.list.length - 1; i >= 0; i--) {
+        mdl.partner.removeItemById(mdl.partner.list[i].id);
+    }
+}
+
+document.querySelector(".new-project-btn").addEventListener("click", () => {
+    confirmPopup.open(
+        `¿Seguro que deseas empezar un nuevo proyecto?`,
+        (response) => {
+            if (response === true) {
+                clearProject();
+            }
+        },
+        {
+            overlay: true
+        }
+    );
+});
+
+document.querySelector(".save-file-btn").addEventListener("click", () => {
+    var currentChar = "A";
+    var fieldsAliasMap = {};
+
+    var partner = mdl.partner.getBlankItem();
+    for (var field in partner) {
+        if (fieldsAliasMap[field] === undefined) {
+            fieldsAliasMap[field] = currentChar;
+            currentChar = getNextTextChar(currentChar);
+        }
+    }
+
+    var ar = mdl.ar.getBlankItem();
+    for (var field in ar) {
+        if (fieldsAliasMap[field] === undefined) {
+            fieldsAliasMap[field] = currentChar;
+            currentChar = getNextTextChar(currentChar);
+        }
+    }
+
+    var payment = mdl.payment.getBlankItem();
+    for (var field in payment) {
+        if (fieldsAliasMap[field] === undefined) {
+            fieldsAliasMap[field] = currentChar;
+            currentChar = getNextTextChar(currentChar);
+        }
+    }
+
+    var output = {fmap:fieldsAliasMap, partners:[], ar:[], payments:[]};
+    for (var list of [["partners", mdl.partner.list], ["ar", mdl.ar.list], ["payments", mdl.payment.list]]) {
+        for (var item of list[1]) {
+            var minifyItem = {};
+            for (var field in item) {
+                minifyItem[fieldsAliasMap[field]] = item[field];
+            }
+            output[list[0]].push(minifyItem);
+        }
+    }
+
+    console.log(JSON.stringify(output));
+    Export(JSON.stringify(output)).then(() => {
+
+    }).catch(() => {
+
+    });
+});
+
+document.querySelector(".import-file-btn").addEventListener("click", () => {
+    Import().then((content) => {
+        var input = JSON.parse(content);
+        var fmap = {};
+        for (var field in input.fmap) {
+            fmap[input.fmap[field]] = field;
+        }
+
+        clearProject();
+
+        input.partners = input.partners.sort((a, b) => {
+            return a[input.fmap["id"]] - b[input.fmap["id"]];
+        });
+        for (var partner of input.partners) {
+            let aux = {};
+            for (var field in partner) {
+                aux[fmap[field]] = partner[field];
+            }
+            mdl.partner.addItem(aux);
+        }
+
+        input.ar = input.ar.sort((a, b) => {
+            return a[input.fmap["id"]] - b[input.fmap["id"]];
+        });
+        for (var ar of input.ar) {
+            let aux = {};
+            for (var field in ar) {
+                aux[fmap[field]] = ar[field];
+            }
+            aux.balance = aux.amount;
+            mdl.ar.addItem(aux);
+        }
+
+        input.payments = input.payments.sort((a, b) => {
+            return a[input.fmap["id"]] - b[input.fmap["id"]];
+        });
+        for (var payment of input.payments) {
+            let aux = {};
+            for (var field in payment) {
+                aux[fmap[field]] = payment[field];
+            }
+            mdl.payment.addItem(aux);
+        }
+
+        setOpenedPanel("ar");
+    }).catch(() => {
+
+    });
+});
+
+setOpenedPanel("ar");

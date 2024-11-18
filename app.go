@@ -32,9 +32,9 @@ func (a *App) Export(value string) error {
 
 	selection, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
 		Title: "Select File",
-		DefaultFilename: "bbb.uuu",
+		DefaultFilename: "cuentas.art",
 		Filters: []runtime.FileFilter{
-			{ DisplayName: "Excel Workbooks (*.uuu)", Pattern: "*.uuu", },
+			{ DisplayName: "AR-Tracker (*.art)", Pattern: "*.art", },
 			// ... more filters for more file types
 		},
 	})
@@ -53,7 +53,7 @@ func (a *App) Import() (string, error) {
 	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Select File",
 		Filters: []runtime.FileFilter{
-			{ DisplayName: "Accounts (*.uuu)", Pattern: "*.uuu", },
+			{ DisplayName: "AR-Tracker (*.art)", Pattern: "*.art", },
 			// ... more filters for more file types
 		},
 	})
