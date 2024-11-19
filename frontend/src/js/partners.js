@@ -96,9 +96,12 @@ var PartnersPanel = function (mdl, panelElm) {
         var tbody = this.table.querySelector("tbody");
         var tr = document.createElement("tr");
     
+        var balance = item.debtTotal - item.paymentsTotal;
+
         tr.innerHTML = `
             <td>${item.id}</td>
             <td class="name-td">${item.name}</td>
+            <td class="balance-td">${balance.toFixed(2)}</td>
             <td class="btns-td">
                 <button data-partner-id="${item.id}" class="edit-btn custom-btn-1">
                     <span class="material-symbols-outlined" data-partner-id="${item.id}">stylus</span>
@@ -149,6 +152,10 @@ var PartnersPanel = function (mdl, panelElm) {
                 var tr = this.table.querySelector(`[data-partner-id='${item.id}']`).closest("tr");
                 if (item.name) {
                     tr.querySelector(".name-td").innerHTML = item.name;
+                }
+                if (typeof item.paymentsTotal !== undefined || typeof item.debtTotal !== undefined) {
+                    var balance = item.debtTotal - item.paymentsTotal;
+                    tr.querySelector(".balance-td").innerHTML = balance.toFixed(2);
                 }
             }
         }

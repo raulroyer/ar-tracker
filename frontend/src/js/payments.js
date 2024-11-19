@@ -145,9 +145,9 @@ var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
         tr.innerHTML = `
             <td class="id-td">${item.id}</td>
             <td class="partner-name-td" data-partner="${partner.id}">${partner.name}</td>
-            <td class="ar-id-td">${item.arId}</td>
             <td class="ar-type-td" data-ar="${item.arId}">${arItem.type}</td>
             <td class="amount-td"><strong>${item.amount.toFixed(2)}</strong>/${arItem.amount.toFixed(2)}</td>
+            <td class="ar-id-td">${item.arId}</td>
             <td class="date-td">${item.date}</td>
             <td class="btns-td">
                 <button data-payment-id="${item.id}" class="edit-btn custom-btn-1">

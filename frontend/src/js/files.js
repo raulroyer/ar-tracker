@@ -63,8 +63,16 @@ document.querySelector(".save-file-btn").addEventListener("click", () => {
         }
     }
 
+    var partnersList = mdl.partner.list.map((partner) => {
+        return {
+            ...partner,
+            paymentsTotal: 0,
+            debtTotal: 0
+        }
+    });
+
     var output = {fmap:fieldsAliasMap, partners:[], ar:[], payments:[]};
-    for (var list of [["partners", mdl.partner.list], ["ar", mdl.ar.list], ["payments", mdl.payment.list]]) {
+    for (var list of [["partners", partnersList], ["ar", mdl.ar.list], ["payments", mdl.payment.list]]) {
         for (var item of list[1]) {
             var minifyItem = {};
             for (var field in item) {
@@ -73,6 +81,8 @@ document.querySelector(".save-file-btn").addEventListener("click", () => {
             output[list[0]].push(minifyItem);
         }
     }
+
+
 
     Export(JSON.stringify(output)).then(() => {
 

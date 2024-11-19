@@ -78,21 +78,6 @@ function _removeItemById (eventName) {
         }
     };
 }
-function _removeItemsByPartnerId (eventName) {
-    return function (partnerId) {
-        var ocurrences = [];
-        for (var i = this.list.length -1; i >= 0; i--) {
-            if (this.list[i].partner == partnerId) {
-                var removed = this.list.splice(i, 1);
-                ocurrences.push(removed[0]);
-            }
-        }
-
-        if (ocurrences.length > 0) {
-            pubsub.emit(eventName, { remove: ocurrences });
-        }
-    }
-}
 function _removeItemsByArId (eventName) {
     return function (arId) {
         var ocurrences = [];
@@ -102,7 +87,6 @@ function _removeItemsByArId (eventName) {
                 ocurrences.push(removed[0]);
             }
         }
-
         if (ocurrences.length > 0) {
             pubsub.emit(eventName, { remove: ocurrences });
         }
@@ -119,23 +103,30 @@ function _nextNewItemId () {
 }
 
 // PARTNERS MODEL
-function Partner () {
+function Partner (mdl) {
     this.blankItem = {
         id: null,
-        name: ""
+        name: "",
+        paymentsTotal: 0,
+        debtTotal: 0,
+        note: ""
     };
     this.list = [
-        { id: 1, name: "Baggio" },
-        { id: 2, name: "Lamine Yamal" },
-        { id: 3, name: "Ferran Torres" }
+        { id: 1, name: "Baggio", paymentsTotal: 0, debtTotal: 0, note: "" },
+        { id: 2, name: "Lamine Yamal", paymentsTotal: 0, debtTotal: 0, note: "" },
+        { id: 3, name: "Ferran Torres", paymentsTotal: 0, debtTotal: 0, note: "" }
     ];
     this.getBlankItem = () => {
         return JSON.parse(JSON.stringify(this.blankItem));
     };
     this.addItem = _addItem("partners_change");
     this.getItemById = (id) => { return this._partnerIdMap[id] };
-    this.setItem = _setItem(["name"], "partners_change");
-    this.removeItemById = _removeItemById("partners_change");
+    this.setItem = _setItem(["name", "paymentsTotal", "debtTotal", "note"], "partners_change");
+    this.removeItemByIdBase = _removeItemById("partners_change");
+    this.removeItemById = (partnerId) => {
+        mdl.ar.removeItemByPartnerId(partnerId);
+        this.removeItemByIdBase(partnerId);
+    };
     this.nextNewItemId = _nextNewItemId;
 
     this._getPartnerIdMap = () => {
@@ -149,9 +140,59 @@ function Partner () {
             this._partnerIdMap = this._getPartnerIdMap();
         }
     };
+    this._onArListChange = (arg) => {
+        if (arg.add) {
+            for (var ar of arg.add) {
+                var partner = this.getItemById(ar.partner);
+
+                var newDetbTotal = partner.debtTotal + mdl.ar.calcArAccAmount(ar);
+                newDetbTotal = parseFloat(newDetbTotal.toFixed(2));
+
+                this.setItem(partner.id, { debtTotal: newDetbTotal });
+            }
+        }
+        if (arg.remove) {
+            for (var ar of arg.remove) {
+                var partner = this.getItemById(ar.partner);
+
+                var newDetbTotal = partner.debtTotal - mdl.ar.calcArAccAmount(ar);
+                newDetbTotal = parseFloat(newDetbTotal.toFixed(2));
+
+                this.setItem(partner.id, { debtTotal: newDetbTotal});
+            }
+        }
+    };
+    this._onPaymentsListChange = (arg) => {
+        if (arg.add) {
+            for (var payment of arg.add) {
+                var ar = mdl.ar.getItemById(payment.arId);
+                var partner = this.getItemById(ar.partner);
+
+                var newPamentsTotal = partner.paymentsTotal + payment.amount;
+                newPamentsTotal = parseFloat(newPamentsTotal.toFixed(2));
+
+                this.setItem(partner.id, { paymentsTotal: newPamentsTotal });
+            }
+        }
+        if (arg.remove) {
+            for (var payment of arg.remove) {
+                var arItem = mdl.ar.getItemById(payment.arId);
+                if (arItem) {
+                    var partner = this.getItemById(arItem.partner);
+                    // if (partner)  ???
+                    var newPamentsTotal = partner.paymentsTotal - payment.amount;
+                    newPamentsTotal = parseFloat(newPamentsTotal.toFixed(2));
+
+                    this.setItem(partner.id, { paymentsTotal: newPamentsTotal});
+                }
+            }
+        }
+    };
 
     this._partnerIdMap = this._getPartnerIdMap();
     pubsub.add("partners_change", this._onPartnersListChange);
+    pubsub.add("ar_change", this._onArListChange);
+    pubsub.add("payments_change", this._onPaymentsListChange);
 
     return {
         list: this.list,
@@ -165,7 +206,7 @@ function Partner () {
 }
 
 // ACCOUNT RECEIVABLES MODEL
-function AR () {
+function AR (mdl) {
     this.blankItem = {
         id: null,
         partner: null,
@@ -235,8 +276,25 @@ function AR () {
         }
         this.setItemBase(id, change);
     };
-    this.removeItemById = _removeItemById("ar_change");
-    this.removeItemByPartnerId = _removeItemsByPartnerId("ar_change");
+    this.removeItemByIdBase = _removeItemById("ar_change");
+    this.removeItemById = (id) => {
+        mdl.payment.removeItemByArId(id);
+        this.removeItemByIdBase(id);
+    };
+    this.removeItemByPartnerId = (partnerId) => {
+        var ocurrences = [];
+        for (var i = this.list.length -1; i >= 0; i--) {
+            if (this.list[i].partner == partnerId) {
+                mdl.payment.removeItemByArId(this.list[i].id);
+                var removed = this.list.splice(i, 1);
+                ocurrences.push(removed[0]);
+            }
+        }
+
+        if (ocurrences.length > 0) {
+            pubsub.emit("ar_change", { remove: ocurrences });
+        }
+    };
     this.nextNewItemId = _nextNewItemId;
     this.calcArAccAmount = (item) => {
         if (item.type === "Mensualidad") {
@@ -251,7 +309,7 @@ function AR () {
     };
     this.calcArPaymentsTotal = (arId) => {
         var total = 0;
-        this.mdl.payment.getItemsByArId(arId).forEach((payment) => {
+        mdl.payment.getItemsByArId(arId).forEach((payment) => {
             total += payment.amount;
         });
         return total;
@@ -276,13 +334,6 @@ function AR () {
             return "expired";
         }
         return "pending";
-    };
-    this.onPartnersListChange = function (evt) {
-        if (evt.remove) {
-            for (var item of evt.remove) {
-                this.removeItemByPartnerId(item.id);
-            }
-        }
     };
     this.onPaymentsListChange = function (evt) {
         if (evt.add) {
@@ -309,7 +360,6 @@ function AR () {
         }
     };
 
-    pubsub.add("partners_change", this.onPartnersListChange.bind(this));
     pubsub.add("payments_change", this.onPaymentsListChange.bind(this));
 
     return {
@@ -321,12 +371,13 @@ function AR () {
         removeItemById: this.removeItemById,
         removeItemByPartnerId: this.removeItemByPartnerId,
         nextNewItemId: this.nextNewItemId,
-        calcArState: this.calcArState
+        calcArState: this.calcArState,
+        calcArAccAmount: this.calcArAccAmount
     };
 }
 
 // PAYMENTS MODEL
-function Payment () {
+function Payment (mdl) {
     this.blankItem = {
         id: null,
         arId: "",
@@ -365,16 +416,6 @@ function Payment () {
     this.removeItemByArId = _removeItemsByArId("payments_change");
     this.nextNewItemId = _nextNewItemId;
 
-    this.onArListChange = function (evt) {
-        if (evt.remove) {
-            for (var item of evt.remove) {
-                this.removeItemByArId(item.id);
-            }
-        }
-    };
-
-    pubsub.add("ar_change", this.onArListChange.bind(this));
-
     return {
         list: this.list,
         getBlankItem: this.getBlankItem,
@@ -391,9 +432,9 @@ function Payment () {
 // MODEL
 function Mdl (pubsub) {
     this.pubsub = pubsub;
-    this.partner = new Partner();
-    this.ar = new AR();
-    this.payment = new Payment();
+    this.partner = new Partner(this);
+    this.ar = new AR(this);
+    this.payment = new Payment(this);
 
     return {
         partner: this.partner,
