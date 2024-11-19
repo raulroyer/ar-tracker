@@ -157,7 +157,7 @@ var validateMoneyInput = function(e) {
 // VALIDATION
 var positiveTwoDecimalAmountRegexp = new RegExp('^[0-9]+.[0-9]{2}$');
 
-// DATE FORMAT
+// DATE UTILS
 function dateToYYYYMMDD (date) {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
@@ -176,4 +176,15 @@ function nextDate (date) {
         date.getMonth(),
         date.getDate() + 1
     );
+}
+function calcMonthDiff (startDate, endDate) {
+    var monthDiff = 0;
+
+    var start = new Date(startDate.getFullYear(), startDate.getMonth());
+    var end = new Date(endDate.getFullYear(), endDate.getMonth());
+    while (start.getTime() < end.getTime()) {
+        monthDiff++;
+        start.setMonth(start.getMonth() + 1);
+    }
+    return monthDiff;
 }

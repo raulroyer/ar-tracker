@@ -150,8 +150,12 @@ var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
             <td class="amount-td"><strong>${item.amount.toFixed(2)}</strong>/${arItem.amount.toFixed(2)}</td>
             <td class="date-td">${item.date}</td>
             <td class="btns-td">
-            <button data-payment-id="${item.id}" class="edit-btn custom-btn-1">&#x270E;</button>
-            <button data-payment-id="${item.id}" class="delete-btn custom-btn-1">&#10006;</button>
+                <button data-payment-id="${item.id}" class="edit-btn custom-btn-1">
+                    <span class="material-symbols-outlined" data-payment-id="${item.id}">stylus</span>
+                </button>
+                <button data-payment-id="${item.id}" class="delete-btn custom-btn-1">
+                    <span class="material-symbols-outlined" data-payment-id="${item.id}">close</span>
+                </button>
             </td>`;
         tbody.appendChild(tr);
 
@@ -175,7 +179,7 @@ var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
         var partner = mdl.partner.getItemById(ar.partner);
 
         confirmPopup.open(
-            `Se va a eliminar El pago <strong>(${payment.id} | ${partner.name} | ${ar.type} | $${payment.amount}/$${ar.balance} | ${payment.date})</strong>.`,
+            `Se va a eliminar el pago <strong>(${payment.id} | ${partner.name} | ${ar.type} | $${payment.amount}/$${ar.balance} | ${payment.date})</strong>. Esta acción modificará el balance de la cuenta por cobrar asociada.`,
             (response) => {
                 if (response === true) {
                     mdl.payment.removeItemById(payment.id);

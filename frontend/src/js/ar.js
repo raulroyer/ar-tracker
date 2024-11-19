@@ -7,6 +7,7 @@ var ArPopup = function (mdl, popupElm) {
     this.amountInput = this.popup.querySelector(".amount-input");
     this.balanceInput = this.popup.querySelector(".balance-input");
     this.expirationDateInput = this.popup.querySelector(".expiration-date-input");
+    this.cycleAmountInput = this.popup.querySelector(".cycle-amount-input");
     this.cyclePaymentTypeInput = this.popup.querySelector(".cycle-payment-type-input");
     this.startDateInput = this.popup.querySelector(".start-date-input");
     this.endDateInput = this.popup.querySelector(".end-date-input");
@@ -19,7 +20,8 @@ var ArPopup = function (mdl, popupElm) {
     this.load = (item) => {
         if (item == null) {
             item = mdl.ar.getBlankItem();
-            item.type = "Mensualidad"
+            item.type = "Mensualidad";
+            item.cyclePaymentType = "cycle-start";
         }
         this.loadedItem = item;
 
@@ -38,6 +40,7 @@ var ArPopup = function (mdl, popupElm) {
         this.partnerInput.value = item.partner;
         this.typeInput.value = item.type;
         this.amountInput.value = item.amount.toFixed(2);
+        this.cycleAmountInput.value = item.cycleAmount.toFixed(2);
         this.balanceInput.value = item.id ? item.balance.toFixed(2) : "";
         this.expirationDateInput.value = item.expirationDate;
         this.cyclePaymentTypeInput.value = item.cyclePaymentType;
@@ -65,11 +68,23 @@ var ArPopup = function (mdl, popupElm) {
             this.typeInput.setAttribute("disabled", true);
             this.amountInput.setAttribute("disabled", true);
             this.expirationDateInput.setAttribute("disabled", true);
+            this.cycleAmountInput.setAttribute("disabled", true);
+            this.cyclePaymentTypeInput.setAttribute("disabled", true);
+            this.startDateInput.setAttribute("disabled", true);
+            this.endDateInput.setAttribute("disabled", true);
         } else {
             this.partnerInput.removeAttribute("disabled");
             this.typeInput.removeAttribute("disabled");
-            this.amountInput.removeAttribute("disabled");
+            if (this.typeInput.value === "Mensualidad") {
+                this.amountInput.setAttribute("disabled", true);
+            } else {
+                this.amountInput.removeAttribute("disabled");
+            }
             this.expirationDateInput.removeAttribute("disabled");
+            this.cycleAmountInput.removeAttribute("disabled");
+            this.cyclePaymentTypeInput.removeAttribute("disabled");
+            this.startDateInput.removeAttribute("disabled");
+            this.endDateInput.removeAttribute("disabled");
         }
 
         if (config && config.overlay === true) {
@@ -115,8 +130,10 @@ var ArPopup = function (mdl, popupElm) {
         if (this.typeInput.value !== "") {
             if (this.typeInput.value === "Mensualidad") {
                 this.popup.querySelectorAll(".for-periodic-ar").forEach(elm => elm.style.display = "block" );
+                this.amountInput.setAttribute("disabled", true);
             } else {
                 this.popup.querySelectorAll(".for-one-time-ar").forEach(elm => elm.style.display = "block" );
+                this.amountInput.removeAttribute("disabled");
             }
         }
     };
@@ -128,14 +145,14 @@ var ArPopup = function (mdl, popupElm) {
         if (this.typeInput.value == "") {
             errors["Tipo"] = [ "Sin definir" ];
         }
-        if (!positiveTwoDecimalAmountRegexp.test(this.amountInput.value)) {
-            errors["Monto"] = [ "No se cumple el formato" ];
-        } else {
-            if (parseFloat(this.amountInput.value) == 0) {
-                errors["Monto"] = [ "El monto no puede ser $0.00" ];
-            }
-        }
         if (this.typeInput.value === "Mensualidad") {
+            if (!positiveTwoDecimalAmountRegexp.test(this.cycleAmountInput.value)) {
+                errors["Monto"] = [ "No se cumple el formato" ];
+            } else {
+                if (parseFloat(this.cycleAmountInput.value) == 0) {
+                    errors["Monto"] = [ "El monto no puede ser $0.00" ];
+                }
+            }
             if (this.cyclePaymentTypeInput.value == "") {
                 errors["Momento del pago"] = [ "Sin definir" ];
             }
@@ -143,6 +160,13 @@ var ArPopup = function (mdl, popupElm) {
                 errors["startDate"] = [ "Sin definir" ];
             }
         } else {
+            if (!positiveTwoDecimalAmountRegexp.test(this.amountInput.value)) {
+                errors["Monto"] = [ "No se cumple el formato" ];
+            } else {
+                if (parseFloat(this.amountInput.value) == 0) {
+                    errors["Monto"] = [ "El monto no puede ser $0.00" ];
+                }
+            }
             if (this.expirationDateInput.value == "") {
                 errors["expirationDate"] = [ "Sin definir" ];
             }
@@ -154,15 +178,20 @@ var ArPopup = function (mdl, popupElm) {
         formItem.id = parseInt(this.idInput.value);
         formItem.partner = parseInt(this.partnerInput.value);
         formItem.type = this.typeInput.value;
-        formItem.amount = parseFloat(this.amountInput.value);
-        formItem.balance = parseFloat(this.balanceInput.value);
+        formItem.balance = null;
         if (this.typeInput.value === "Mensualidad") {
+            formItem.amount = null;
+            // formItem.balance = null;
             formItem.expirationDate = null;
+            formItem.cycleAmount = parseFloat(this.cycleAmountInput.value);
             formItem.cyclePaymentType = this.cyclePaymentTypeInput.value;
             formItem.startDate = this.startDateInput.value;
             formItem.endDate = this.endDateInput.value;
         } else {
+            formItem.amount = parseFloat(this.amountInput.value);
+            // formItem.balance = parseFloat(this.balanceInput.value);
             formItem.expirationDate = this.expirationDateInput.value;
+            formItem.cycleAmount = 0;
             formItem.cyclePaymentType = null;
             formItem.startDate = null;
             formItem.endDate = null;
@@ -184,14 +213,14 @@ var ArPopup = function (mdl, popupElm) {
         }
 
         var formItem = this.getFormItem();
+
         if (this.idInput.value) {
-            formItem.balance += formItem.amount - this.loadedItem.amount;
             mdl.ar.setItem(this.idInput.value, formItem);
         } else {
             formItem.id = mdl.ar.nextNewItemId();
-            formItem.balance = formItem.amount;
             mdl.ar.addItem(formItem);
         }
+
         this.close();
     };
     this.onCloseBtnClick = () => {
@@ -232,23 +261,35 @@ var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
         var tr = document.createElement("tr");
     
         var partner = mdl.partner.getItemById(item.partner);
-        tr.setAttribute("class", mdl.ar.calcArState(item));
+        var expiration = item.expirationDate;
+        if (item.type === "Mensualidad") {
+            var date = new Date();
+            if (item.cyclePaymentType === "cycle-start") {
+                date.setDate(0);
+                expiration = dateToYYYYMMDD(date);
+            } else {
+                date.setMonth(date.getMonth() + 1);
+                date.setDate(0);
+                expiration = dateToYYYYMMDD(date);
+            }
+        }
 
+        tr.setAttribute("class", mdl.ar.calcArState(item));
         tr.innerHTML = `
             <td class="id-td">${item.id}</td>
             <td class="partner-name-td" data-partner="${partner.id}">${partner.name}</td>
             <td class="type-td">${item.type}</td>
             <td class="amount-td"><strong>${item.balance.toFixed(2)}</strong>/${item.amount.toFixed(2)}</td>
-            <td class="date-td">${item.expirationDate}</td>
+            <td class="date-td">${expiration}</td>
             <td class="btns-td">
             <button data-ar-id="${item.id}" class="edit-btn custom-btn-1">
-                <span class="material-symbols-outlined">stylus</span>
+                <span class="material-symbols-outlined" data-ar-id="${item.id}">stylus</span>
             </button>
             <button data-ar-id="${item.id}" ${item.balance == 0 ? "disabled" : ""} class="pay-btn custom-btn-1">
-                <span class="material-symbols-outlined">attach_money</span>
+                <span class="material-symbols-outlined" data-ar-id="${item.id}">attach_money</span>
             </button>
             <button data-ar-id="${item.id}" class="delete-btn custom-btn-1">
-                <span class="material-symbols-outlined">close</span>
+                <span class="material-symbols-outlined" data-ar-id="${item.id}">close</span>
             </button>
             </td>`;
         tbody.appendChild(tr);
@@ -287,10 +328,10 @@ var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
         var ar = mdl.ar.getItemById(evt.target.dataset.arId);
         var partner = mdl.partner.getItemById(ar.partner);
         confirmPopup.open(
-            `Se va a eliminar la cuenta por cobrar <strong>(${ar.id} | ${partner.name} | ${ar.type} | $${ar.balance} | ${ar.expirationDate})</strong>.`,
+            `Se va a eliminar la cuenta por cobrar <strong>(${ar.id} | ${partner.name} | ${ar.type} | $${ar.balance} | ${ar.expirationDate})</strong>. Esta acción eliminará los pagos asociados.`,
             (response) => {
                 if (response === true) {
-                    mdl.partner.removeItemById(ar.id);
+                    mdl.ar.removeItemById(ar.id);
                 }
             },
             {
@@ -303,13 +344,26 @@ var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
     this.onArChange = (arg) => {
         if (arg.edit) {
             for (var item of arg.edit) {
+                var expiration = item.expirationDate;
+                if (item.type === "Mensualidad") {
+                    var date = new Date();
+                    if (item.cyclePaymentType === "cycle-start") {
+                        date.setDate(0);
+                        expiration = dateToYYYYMMDD(date);
+                    } else {
+                        date.setMonth(date.getMonth() + 1);
+                        date.setDate(0);
+                        expiration = dateToYYYYMMDD(date);
+                    }
+                }
+
                 var partner = mdl.partner.getItemById(item.partner);
                 var tr = this.table.querySelector(`[data-ar-id='${item.id}']`).closest("tr");
                 tr.setAttribute("class", mdl.ar.calcArState(item));
                 tr.querySelector(".partner-name-td").innerHTML = partner.name;
                 tr.querySelector(".type-td").innerHTML = item.type;
                 tr.querySelector(".amount-td").innerHTML = `<strong>${item.balance.toFixed(2)}</strong>/${item.amount.toFixed(2)}`;
-                tr.querySelector(".date-td").innerHTML = item.expirationDate;
+                tr.querySelector(".date-td").innerHTML = expiration;
                 if (item.balance == 0) {
                     tr.querySelector(".pay-btn").setAttribute("disabled", true);
                 } else {

@@ -125,9 +125,9 @@ function Partner () {
         name: ""
     };
     this.list = [
-        // { id: 1, name: "Baggio" },
-        // { id: 2, name: "Lamine Yamal" },
-        // { id: 3, name: "Ferran Torres" }
+        { id: 1, name: "Baggio" },
+        { id: 2, name: "Lamine Yamal" },
+        { id: 3, name: "Ferran Torres" }
     ];
     this.getBlankItem = () => {
         return JSON.parse(JSON.stringify(this.blankItem));
@@ -174,6 +174,7 @@ function AR () {
         amount: 0,
         balance: 0,
         expirationDate: "",
+        cycleAmount: 0,
         cyclePaymentType: "",
         startDate: "",
         endDate: "",
@@ -187,6 +188,7 @@ function AR () {
         //     amount: 34.65,
         //     balance: 34.65,
         //     expirationDate: "2024-09-14",
+        //     cycleAmount: 34.65,
         //     cyclePaymentType: null,
         //     startDate: null,
         //     endDate: null,
@@ -199,6 +201,7 @@ function AR () {
         //     amount: 15.33,
         //     balance: 15.33,
         //     expirationDate: "2024-10-14",
+        //     cycleAmount: 15.33,
         //     cyclePaymentType: null,
         //     startDate: null,
         //     endDate: null,
@@ -208,18 +211,67 @@ function AR () {
     this.getBlankItem = () => {
         return JSON.parse(JSON.stringify(this.blankItem));
     };
-    this.addItem = _addItem("ar_change");
+    this.addItemBase = _addItem("ar_change");
+    this.addItem = (item) => {
+        if (item.type === "Mensualidad") {
+            var monthDiff = calcMonthDiff(YYYYMMDDToDate(item.startDate), new Date());
+            if (item.cyclePaymentType === "cycle-start") {
+                monthDiff++;
+            }
+            item.balance = monthDiff * item.cycleAmount;
+            item.amount = item.balance;
+        } else {
+            item.balance = item.amount;
+            item.cycleAmount = 0;
+        }
+        this.addItemBase(item);
+    };
     this.getItemById = _getItemById;
-    this.setItem = _setItem(["partner", "type", "amount", "balance", "expirationDate", "cyclePaymentType", "startDate", "endDate", "note"], "ar_change");
+    this.setItemBase = _setItem(["partner", "type", "amount", "balance", "expirationDate", "cycleAmount", "cyclePaymentType", "startDate", "endDate", "note"], "ar_change");
+    this.setItem = (id, change) => {
+        if (change.type === "Mensualidad") {
+            change.amount = this.calcArAccAmount({change});
+            change.balance = change.amount - this.calcArPaymentsTotal(id);
+        }
+        this.setItemBase(id, change);
+    };
     this.removeItemById = _removeItemById("ar_change");
     this.removeItemByPartnerId = _removeItemsByPartnerId("ar_change");
     this.nextNewItemId = _nextNewItemId;
+    this.calcArAccAmount = (item) => {
+        if (item.type === "Mensualidad") {
+            var monthDiff = calcMonthDiff(YYYYMMDDToDate(item.startDate), new Date());
+            if (item.cyclePaymentType === "cycle-start") {
+                monthDiff++;
+            }
+            return monthDiff * item.cycleAmount;
+        }
+
+        return item.amount;
+    };
+    this.calcArPaymentsTotal = (arId) => {
+        var total = 0;
+        this.mdl.payment.getItemsByArId(arId).forEach((payment) => {
+            total += payment.amount;
+        });
+        return total;
+    };
     this.calcArState = (item) => {
         if (item.balance == 0) {
             return "paid";
         }
 
-        var expDate = nextDate(YYYYMMDDToDate(item.expirationDate));
+        var expirationDate;
+        if (item.type === "Mensualidad") {
+            expirationDate = YYYYMMDDToDate(item.startDate);
+            // if (item.cyclePaymentType === "cycle-start") {
+            //     expirationDate.setMonth(expirationDate.getMonth() + 1);
+            // }
+        } else {
+            expirationDate = YYYYMMDDToDate(item.expirationDate);
+        }
+
+        var expDate = nextDate(expirationDate);
         if (expDate.getTime() < (Date.now())) {
             return "expired";
         }
@@ -303,6 +355,11 @@ function Payment () {
     };
     this.addItem = _addItem("payments_change");
     this.getItemById = _getItemById;
+    this.getItemsByArId = (arId) => {
+        return this.list.filter((payment) => {
+            return payment.arId == arId;
+        });
+    };
     this.setItem = _setItem(["arId", "amount", "date", "note"], "payments_change");
     this.removeItemById = _removeItemById("payments_change");
     this.removeItemByArId = _removeItemsByArId("payments_change");

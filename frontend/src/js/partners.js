@@ -100,8 +100,12 @@ var PartnersPanel = function (mdl, panelElm) {
             <td>${item.id}</td>
             <td class="name-td">${item.name}</td>
             <td class="btns-td">
-            <button data-partner-id="${item.id}" class="edit-btn custom-btn-1">&#x270E;</button>
-            <button data-partner-id="${item.id}" class="delete-btn custom-btn-1">&#10006;</button>
+                <button data-partner-id="${item.id}" class="edit-btn custom-btn-1">
+                    <span class="material-symbols-outlined" data-partner-id="${item.id}">stylus</span>
+                </button>
+                <button data-partner-id="${item.id}" class="delete-btn custom-btn-1">
+                    <span class="material-symbols-outlined" data-partner-id="${item.id}">close</span>
+                </button>
             </td>`;
         tbody.appendChild(tr);
     
