@@ -292,7 +292,7 @@ var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
                 <span class="material-symbols-outlined" data-ar-id="${item.id}">close</span>
             </button>
             </td>`;
-        tbody.appendChild(tr);
+        tbody.prepend(tr);
     
         tr.querySelector(".edit-btn").addEventListener("click", this.onEditBtnClick);
         tr.querySelector(".pay-btn").addEventListener("click", this.onPayBtnClick);

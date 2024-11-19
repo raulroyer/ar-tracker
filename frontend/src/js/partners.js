@@ -110,7 +110,7 @@ var PartnersPanel = function (mdl, panelElm) {
                     <span class="material-symbols-outlined" data-partner-id="${item.id}">close</span>
                 </button>
             </td>`;
-        tbody.appendChild(tr);
+        tbody.prepend(tr);
     
         tr.querySelector(".edit-btn").addEventListener("click", this.onEditBtnClick);
         tr.querySelector(".delete-btn").addEventListener("click", this.onDeleteBtnClick);

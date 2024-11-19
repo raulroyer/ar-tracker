@@ -157,7 +157,7 @@ var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
                     <span class="material-symbols-outlined" data-payment-id="${item.id}">close</span>
                 </button>
             </td>`;
-        tbody.appendChild(tr);
+        tbody.prepend(tr);
 
         tr.querySelector(".edit-btn").addEventListener("click", this.onEditBtnClick);
         tr.querySelector(".delete-btn").addEventListener("click", this.onDeleteBtnClick);
