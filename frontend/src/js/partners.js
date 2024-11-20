@@ -102,10 +102,11 @@ export var PartnersPanel = function (mdl, panelElm) {
     this.addBtn = this.panel.querySelector(".panel-add-btn");
     this.table = this.panel.querySelector("table");
     this.formPopup = new PartnerPopup(mdl, document.querySelector("#partner-form-popup"));
+    this.sortCursor = this.table.querySelector(".sort-cursor");
+    this.sort = {field: "id", order: "desc"};
 
     this.clearTable = _clearTable;
-    this.addRow = (item) => {
-        var tbody = this.table.querySelector("tbody");
+    this.createRow = (item) => {
         var tr = document.createElement("tr");
     
         var balance = item.debtTotal - item.paymentsTotal;
@@ -122,17 +123,43 @@ export var PartnersPanel = function (mdl, panelElm) {
                     <span class="material-symbols-outlined" data-partner-id="${item.id}">close</span>
                 </button>
             </td>`;
-        tbody.prepend(tr);
     
         tr.querySelector(".edit-btn").addEventListener("click", this.onEditBtnClick);
         tr.querySelector(".delete-btn").addEventListener("click", this.onDeleteBtnClick);
+
+        return tr;
     };
     this.loadTable = () => {
         this.clearTable(this.table);
     
-        for (var i = 0; i < mdl.partner.list.length; i++) {
-            this.addRow(mdl.partner.list[i]);
+        var sortedList = this.getSortedList();
+        var tbody = this.table.querySelector("tbody");
+        for (var i = 0; i < sortedList.length; i++) {
+            var tr = this.createRow(sortedList[i]);
+            tbody.prepend(tr);
         }
+
+        this.table.querySelector(`[data-sort-field="${this.sort.field}"]`).append(this.sortCursor);
+        this.sortCursor.innerHTML = this.sort.order === "desc" ? "keyboard_arrow_up" : "keyboard_arrow_down";
+    };
+    this.getSortedList = () => {
+        var sorted = mdl.partner.list.sort((a, b) => {
+            if (this.sort.field === "id") {
+                return a.id - b.id;
+            } else if (this.sort.field === "name") {
+                return (a.name > b.name) ? 1 : -1;
+            } else if (this.sort.field === "balance") {
+                var aBalance = a.debtTotal - a.paymentsTotal;
+                var bBalance = b.debtTotal - b.paymentsTotal;
+                return aBalance - bBalance;
+            }
+        });
+
+        if (this.sort.order === "asc") {
+            sorted.reverse();
+        }
+
+        return sorted;
     };
     this.onAddBtnClick = () => {
         this.formPopup.open(null, { overlay: true });
@@ -158,6 +185,21 @@ export var PartnersPanel = function (mdl, panelElm) {
         );
     };
     this.onFilterInputChange = _filterTable.bind(this);
+    this.onSortFieldTriggerClick = (evt) => {
+        var sortField = evt.target.dataset.sortField;
+        if (!sortField) {
+            sortField = evt.target.parentElement.dataset.sortField;
+        }
+
+        if (sortField !== this.sort.field) {
+            this.sort.field = sortField;
+            this.sort.order = "desc";
+        } else {
+            this.sort.order = this.sort.order === "desc" ? "asc" : "desc";
+        }
+
+        this.loadTable();
+    };
     this.onPartnersChange = (arg) => {
         if (arg.edit) {
             for (var item of arg.edit) {
@@ -172,8 +214,10 @@ export var PartnersPanel = function (mdl, panelElm) {
             }
         }
         if (arg.add) {
+            var tbody = this.table.querySelector("tbody");
             for (var item of arg.add) {
-                this.addRow(item);
+                var tr = this.createRow(item);
+                tbody.prepend(tr);
             }
         }
         if (arg.remove) {
@@ -185,6 +229,9 @@ export var PartnersPanel = function (mdl, panelElm) {
 
     this.addBtn.addEventListener("click", this.onAddBtnClick);
     this.filterInput.addEventListener("input", this.onFilterInputChange);
+    this.table.querySelectorAll("[data-sort-field]").forEach((elm => {
+        elm.addEventListener("click", this.onSortFieldTriggerClick);
+    }));
     pubsub.add("partners_change", this.onPartnersChange);
 
     this.loadTable();

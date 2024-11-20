@@ -256,10 +256,11 @@ export var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
     this.table = this.panel.querySelector("table");
     this.formPopup = arFormPopup;
     this.payFormPopup = paymentFormPoup;
+    this.sortCursor = this.table.querySelector(".sort-cursor");
+    this.sort = {field: "id", order: "desc"};
 
     this.clearTable = _clearTable;
-    this.addRow = (item) => {
-        var tbody = this.table.querySelector("tbody");
+    this.createRow = (item) => {
         var tr = document.createElement("tr");
     
         var partner = mdl.partner.getItemById(item.partner);
@@ -294,18 +295,44 @@ export var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
                 <span class="material-symbols-outlined" data-ar-id="${item.id}">close</span>
             </button>
             </td>`;
-        tbody.prepend(tr);
     
         tr.querySelector(".edit-btn").addEventListener("click", this.onEditBtnClick);
         tr.querySelector(".pay-btn").addEventListener("click", this.onPayBtnClick);
         tr.querySelector(".delete-btn").addEventListener("click", this.onDeleteBtnClick);
+
+        return tr;
     };
     this.loadTable = () => {
         this.clearTable(this.table);
     
-        for (var i = 0; i < mdl.ar.list.length; i++) {
-            this.addRow(mdl.ar.list[i]);
+        var sortedList = this.getSortedList();
+        var tbody = this.table.querySelector("tbody");
+        for (var i = 0; i < sortedList.length; i++) {
+            var tr = this.createRow(sortedList[i]);
+            tbody.prepend(tr);
         }
+
+        this.table.querySelector(`[data-sort-field="${this.sort.field}"]`).append(this.sortCursor);
+        this.sortCursor.innerHTML = this.sort.order === "desc" ? "keyboard_arrow_up" : "keyboard_arrow_down";
+    };
+    this.getSortedList = () => {
+        var sorted = mdl.ar.list.sort((a, b) => {
+            if (["id", "balance"].includes(this.sort.field)) {
+                return a[this.sort.field] - b[this.sort.field];
+            } else if (this.sort.field === "partner") {
+                var partnerA = mdl.partner.getItemById(a.partner);
+                var partnerB = mdl.partner.getItemById(b.partner);
+                return (partnerA.name > partnerB.name) ? 1 : -1;
+            } else if (["type", "expirationDate"].includes(this.sort.field)) {
+                return (a.type > b.type) ? 1 : -1;
+            }
+        });
+
+        if (this.sort.order === "asc") {
+            sorted.reverse();
+        }
+
+        return sorted;
     };
     this.onAddBtnClick = () => {
         this.formPopup.open(null, { overlay: true });
@@ -343,6 +370,21 @@ export var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
         );
     };
     this.onFilterInputChange = _filterTable.bind(this);
+    this.onSortFieldTriggerClick = (evt) => {
+        var sortField = evt.target.dataset.sortField;
+        if (!sortField) {
+            sortField = evt.target.parentElement.dataset.sortField;
+        }
+
+        if (sortField !== this.sort.field) {
+            this.sort.field = sortField;
+            this.sort.order = "desc";
+        } else {
+            this.sort.order = this.sort.order === "desc" ? "asc" : "desc";
+        }
+
+        this.loadTable();
+    };
     this.onArChange = (arg) => {
         if (arg.edit) {
             for (var item of arg.edit) {
@@ -374,8 +416,10 @@ export var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
             }
         }
         if (arg.add) {
+            var tbody = this.table.querySelector("tbody");
             for (var item of arg.add) {
-                this.addRow(item);
+                var tr = this.createRow(item);
+                tbody.prepend(tr);
             }
         }
         if (arg.remove) {
@@ -409,6 +453,9 @@ export var ArPanel = function (mdl, panelElm, arFormPopup, paymentFormPoup) {
     this.loadTable();
     this.addBtn.addEventListener("click", this.onAddBtnClick);
     this.filterInput.addEventListener("input", this.onFilterInputChange);
+    this.table.querySelectorAll("[data-sort-field]").forEach((elm => {
+        elm.addEventListener("click", this.onSortFieldTriggerClick);
+    }));
     pubsub.add("ar_change", this.onArChange);
     pubsub.add("partners_change", this.onPartnersChange);
     pubsub.add("ar-popup-close", this.onArPopupClose);

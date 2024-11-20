@@ -202,8 +202,6 @@ document.querySelector(".import-file-btn").addEventListener("click", () => {
             }
             mdl.payment.addItem(aux);
         }
-
-        setOpenedPanel("ar");
     }).catch(() => {
 
     });

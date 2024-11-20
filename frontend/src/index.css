@@ -58,6 +58,9 @@ th, td {
     padding: 0.5em;
     /* border: 1px solid gray; */
 }
+th {
+    cursor: pointer;
+}
 th.btn-tds,
 td.btns-td {
     text-align: right;

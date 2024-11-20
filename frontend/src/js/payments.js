@@ -136,10 +136,11 @@ export var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
     this.filterInput = this.panel.querySelector(".filter-input");
     this.table = this.panel.querySelector("table");
     this.formPopup = paymentPopup;
+    this.sortCursor = this.table.querySelector(".sort-cursor");
+    this.sort = {field: "id", order: "desc"};
 
     this.clearTable = _clearTable;
-    this.addRow = (item) => {
-        var tbody = this.table.querySelector("tbody");
+    this.createRow = (item) => {
         var tr = document.createElement("tr");
 
         var arItem = mdl.ar.getItemById(item.arId);
@@ -150,7 +151,7 @@ export var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
             <td class="partner-name-td" data-partner="${partner.id}">${partner.name}</td>
             <td class="ar-type-td" data-ar="${item.arId}">${arItem.type}</td>
             <td class="amount-td"><strong>${item.amount.toFixed(2)}</strong>/${arItem.amount.toFixed(2)}</td>
-            <td class="ar-id-td">${item.arId}</td>
+            <td class="ar-id-td">c${item.arId}</td>
             <td class="date-td">${item.date}</td>
             <td class="btns-td">
                 <button data-payment-id="${item.id}" class="edit-btn custom-btn-1">
@@ -160,17 +161,49 @@ export var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
                     <span class="material-symbols-outlined" data-payment-id="${item.id}">close</span>
                 </button>
             </td>`;
-        tbody.prepend(tr);
 
         tr.querySelector(".edit-btn").addEventListener("click", this.onEditBtnClick);
         tr.querySelector(".delete-btn").addEventListener("click", this.onDeleteBtnClick);
+
+        return tr;
     };
     this.loadTable = () => {
         this.clearTable(this.table);
 
-        for (var i = 0; i < mdl.payment.list.length; i++) {
-            this.addRow(mdl.payment.list[i]);
+        var sortedList = this.getSortedList();
+        var tbody = this.table.querySelector("tbody");
+        for (var i = 0; i < sortedList.length; i++) {
+            var tr = this.createRow(sortedList[i]);
+            tbody.prepend(tr);
         }
+
+        this.table.querySelector(`[data-sort-field="${this.sort.field}"]`).append(this.sortCursor);
+        this.sortCursor.innerHTML = this.sort.order === "desc" ? "keyboard_arrow_up" : "keyboard_arrow_down";
+    };
+    this.getSortedList = () => {
+        var sorted = mdl.payment.list.sort((a, b) => {
+            if (["id", "amount", "arId"].includes(this.sort.field)) {
+                return a[this.sort.field] - b[this.sort.field];
+            } else if (this.sort.field === "type") {
+                var arA = mdl.ar.getItemById(a.arId);
+                var arB = mdl.ar.getItemById(b.arId);
+                return (arA.type > arB.type) ? 1 : -1;
+            } else if (this.sort.field === "partner") {
+                var arA = mdl.ar.getItemById(a.arId);
+                var arB = mdl.ar.getItemById(b.arId);
+                var partnerA = mdl.partner.getItemById(arA.partner);
+                var partnerB = mdl.partner.getItemById(arB.partner);
+                return (partnerA.name > partnerB.name) ? 1 : -1;
+            } else if (["date"].includes(this.sort.field)) {
+                return (a.type > b.type) ? 1 : -1;
+            }
+        });
+
+        if (this.sort.order === "asc") {
+            sorted.reverse();
+        }
+
+        return sorted;
     };
     this.onEditBtnClick = (evt) => {
         var selectedItem = mdl.payment.getItemById(evt.target.dataset.paymentId);
@@ -195,6 +228,21 @@ export var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
         );
     };
     this.onFilterInputChange = _filterTable.bind(this);
+    this.onSortFieldTriggerClick = (evt) => {
+        var sortField = evt.target.dataset.sortField;
+        if (!sortField) {
+            sortField = evt.target.parentElement.dataset.sortField;
+        }
+
+        if (sortField !== this.sort.field) {
+            this.sort.field = sortField;
+            this.sort.order = "desc";
+        } else {
+            this.sort.order = this.sort.order === "desc" ? "asc" : "desc";
+        }
+
+        this.loadTable();
+    };
     this.onPaymentChange = (arg) => {
         if (arg.edit) {
             for (var item of arg.edit) {
@@ -209,8 +257,10 @@ export var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
             }
         }
         if (arg.add) {
+            var tbody = this.table.querySelector("tbody");
             for (var item of arg.add) {
-                this.addRow(item);
+                var tr = this.createRow(item);
+                tbody.prepend(tr);
             }
         }
         if (arg.remove) {
@@ -252,6 +302,9 @@ export var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
 
     this.loadTable();
     this.filterInput.addEventListener("input", this.onFilterInputChange);
+    this.table.querySelectorAll("[data-sort-field]").forEach((elm => {
+        elm.addEventListener("click", this.onSortFieldTriggerClick);
+    }));
     pubsub.add("payments_change", this.onPaymentChange);
     pubsub.add("ar_change", this.onArChange);
     pubsub.add("partners_change", this.onPartnersChange);
