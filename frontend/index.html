@@ -220,7 +220,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="custom-input-label-1">Observación</label>
+                        <label class="custom-input-label-1">Nota</label>
                         <br/>
                         <textarea class="note-input custom-input-1"></textarea>
                     </div>
@@ -253,7 +253,7 @@
                         <input class="date-input custom-input-1" type="date" />
                     </div>
                     <div>
-                        <label class="custom-input-label-1">Observación</label>
+                        <label class="custom-input-label-1">Nota</label>
                         <br/>
                         <textarea class="note-input custom-input-1"></textarea>
                     </div>
@@ -267,12 +267,27 @@
                 <span class="popup-title">Socio</span>
                 <button class="close-btn">&#10006;</button>
                 <div class="form">
-                    <label class="custom-input-label-1">ID</label>
-                    <input class="id-input custom-input-1" type="text" disabled />
-                    <br/>
-                    <label class="custom-input-label-1">Nombre</label>
-                    <input class="name-input custom-input-1" type="text" />
-
+                    <div>
+                        <label class="custom-input-label-1">ID</label>
+                        <input class="id-input custom-input-1" type="text" disabled />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Nombre</label>
+                        <input class="name-input custom-input-1" type="text" />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Pagado</label>
+                        <input class="payments-total-input custom-input-1" type="text" value="0.00" disabled />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Adeudado</label>
+                        <input class="debt-total-input custom-input-1" type="text" value="0.00" disabled />
+                    </div>
+                    <div>
+                        <label class="custom-input-label-1">Nota</label>
+                        <br/>
+                        <textarea class="note-input custom-input-1"></textarea>
+                    </div>
                     <div class="btn-container">
                         <button class="save-btn custom-btn-1">Guardar</button>
                     </div>
@@ -296,11 +311,6 @@
         </div>
         
     </div>
-    <!-- <script src="./src/js/common.js" type="module"></script>
-    <script src="./src/js/model.js" type="module"></script>
-    <script src="./src/js/partners.js" type="module"></script>
-    <script src="./src/js/payments.js" type="module"></script>
-    <script src="./src/js/ar.js" type="module"></script> -->
     <script src="./src/js/index.js" type="module"></script>
 </body>
 </html>

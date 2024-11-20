@@ -6,6 +6,9 @@ export var PartnerPopup = function (mdl, popupElm) {
     this.popup = popupElm;
     this.idInput = this.popup.querySelector(".id-input");
     this.nameInput = this.popup.querySelector(".name-input");
+    this.paymentsTotalInput = this.popup.querySelector(".payments-total-input");
+    this.debtTotalInput = this.popup.querySelector(".debt-total-input");
+    this.noteInput = this.popup.querySelector(".note-input");
     this.saveBtn = this.popup.querySelector(".save-btn");
     this.closeBtn = this.popup.querySelector(".close-btn");
     this.overlayElm = document.createElement("div");
@@ -17,6 +20,9 @@ export var PartnerPopup = function (mdl, popupElm) {
 
         this.idInput.value = item.id;
         this.nameInput.value = item.name;
+        this.paymentsTotalInput.value = item.paymentsTotal.toFixed(2);
+        this.debtTotalInput.value = item.debtTotal.toFixed(2);
+        this.noteInput.value = item.note;
     };
     this.open = (item, config) => {
         this.load(item);
@@ -49,6 +55,9 @@ export var PartnerPopup = function (mdl, popupElm) {
         var formItem = {};
         formItem.id = parseInt(this.idInput.value);
         formItem.name = this.nameInput.value;
+        formItem.paymentsTotal = parseFloat(this.paymentsTotalInput.value);
+        formItem.debtTotal = parseFloat(this.debtTotalInput.value);
+        formItem.note = this.noteInput.value;
         return formItem;
     };
     this.onSaveBtnClick = () => {

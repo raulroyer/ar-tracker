@@ -181,9 +181,9 @@ export var ArPopup = function (mdl, popupElm) {
         formItem.id = parseInt(this.idInput.value);
         formItem.partner = parseInt(this.partnerInput.value);
         formItem.type = this.typeInput.value;
-        formItem.balance = null;
+        formItem.balance = parseFloat(this.balanceInput.value);
+        formItem.amount = parseFloat(this.amountInput.value);
         if (this.typeInput.value === "Mensualidad") {
-            formItem.amount = null;
             // formItem.balance = null;
             formItem.expirationDate = null;
             formItem.cycleAmount = parseFloat(this.cycleAmountInput.value);
@@ -191,7 +191,6 @@ export var ArPopup = function (mdl, popupElm) {
             formItem.startDate = this.startDateInput.value;
             formItem.endDate = this.endDateInput.value;
         } else {
-            formItem.amount = parseFloat(this.amountInput.value);
             // formItem.balance = parseFloat(this.balanceInput.value);
             formItem.expirationDate = this.expirationDateInput.value;
             formItem.cycleAmount = 0;
