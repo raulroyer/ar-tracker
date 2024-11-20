@@ -48,7 +48,7 @@
                             <th>ID</th>
                             <th>Socio</th>
                             <th>Tipo</th>
-                            <th>Monto</th>
+                            <th>Adeudado/Total</th>
                             <th>Vencimiento</th>
                             <th class="btn-tds">
                                 <!-- <button data-ar-id="1" class="edit-btn custom-btn-1">
@@ -94,7 +94,7 @@
                             <th>ID</th>
                             <th>Socio</th>
                             <th>Tipo</th>
-                            <th>Monto</th>
+                            <th>Abono/Total</th>
                             <th>CxC</th>
                             <th>Fecha</th>
                         </tr>
@@ -195,7 +195,7 @@
                         />
                     </div>
                     <div>
-                        <label class="custom-input-label-1">Saldo</label>
+                        <label class="custom-input-label-1">Adeudado</label>
                         <input class="balance-input custom-input-1 money-field" type="text" disabled
                             inputmode="numeric" pattern="[0-9+-.]+"
                         />
@@ -208,9 +208,11 @@
                         <label class="custom-input-label-1">Inicia</label>
                         <input class="start-date-input custom-input-1" type="date" />
                     </div>
-                    <div class="for-periodic-ar">
-                        <label class="custom-input-label-1">Finaliza</label>
-                        <input class="end-date-input custom-input-1" type="date" />
+                    <div style="display: none;">
+                        <div class="for-periodic-ar" style="display: none !important;">
+                            <label class="custom-input-label-1">Finaliza</label>
+                            <input class="end-date-input custom-input-1" type="date" />
+                        </div>
                     </div>
                     <div class="for-periodic-ar">
                         <label class="custom-input-label-1">Cobrar</label>
