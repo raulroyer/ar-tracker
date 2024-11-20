@@ -65,7 +65,7 @@ menuLinks.forEach((li) => {
     li.addEventListener("click", onMenuLinkClick);
 });
 
-setOpenedPanel("ar");
+setOpenedPanel("partners");
 
 
 

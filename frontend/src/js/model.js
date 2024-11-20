@@ -117,9 +117,9 @@ function Partner (mdl) {
         note: ""
     };
     this.list = [
-        { id: 1, name: "Baggio", paymentsTotal: 0, debtTotal: 0, note: "" },
-        { id: 2, name: "Lamine Yamal", paymentsTotal: 0, debtTotal: 0, note: "" },
-        { id: 3, name: "Ferran Torres", paymentsTotal: 0, debtTotal: 0, note: "" }
+        // { id: 1, name: "Baggio", paymentsTotal: 0, debtTotal: 0, note: "" },
+        // { id: 2, name: "Lamine Yamal", paymentsTotal: 0, debtTotal: 0, note: "" },
+        // { id: 3, name: "Ferran Torres", paymentsTotal: 0, debtTotal: 0, note: "" }
     ];
     this.getBlankItem = () => {
         return JSON.parse(JSON.stringify(this.blankItem));
