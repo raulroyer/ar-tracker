@@ -1,5 +1,8 @@
+import { _centerPopup, _clearTable, _filterTable, positiveTwoDecimalAmountRegexp, YYYYMMDDToDate, alertPopup, confirmPopup } from './common.js'
+import { pubsub } from './model.js'
+
 // POPUP
-var PaymentPopup = function (mdl, popupElm) {
+export var PaymentPopup = function (mdl, popupElm) {
     this.popup = popupElm;
     this.idInput = this.popup.querySelector(".id-input");
     this.arInput = this.popup.querySelector(".ar-id-input");
@@ -128,7 +131,7 @@ var PaymentPopup = function (mdl, popupElm) {
 };
 
 // PANEL
-var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
+export var PaymentsPanel = function (mdl, panelElm, paymentPopup, arPopup) {
     this.panel = panelElm;
     this.filterInput = this.panel.querySelector(".filter-input");
     this.table = this.panel.querySelector("table");

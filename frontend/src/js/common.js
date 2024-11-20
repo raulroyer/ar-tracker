@@ -1,5 +1,5 @@
 //POPUP COMMON
-function _centerPopup () {
+export function _centerPopup () {
     // popup.getBoundingClientRect() hack
     this.popup.style.visibility = "hidden";
     this.popup.style.display = "block";
@@ -7,7 +7,7 @@ function _centerPopup () {
     this.popup.style.left = `${(window.innerWidth - this.popup.getBoundingClientRect().width)/2}px`;
     this.popup.style.top = `${window.scrollY + 10}px`;  
 }
-function _locateALongside (elm) {
+export function _locateALongside (elm) {
     // popup.getBoundingClientRect() hack
     this.popup.style.visibility = "hidden";
     this.popup.style.display = "block";
@@ -77,7 +77,7 @@ function ConfirmationPopup (popupElm) {
         open: this.open
     }
 }
-var confirmPopup = new ConfirmationPopup(document.querySelector("#confirmation-popup"));
+export var confirmPopup = new ConfirmationPopup(document.querySelector("#confirmation-popup"));
 
 // alert POPUP
 function AlertPopup (popupElm) {
@@ -125,17 +125,17 @@ function AlertPopup (popupElm) {
         open: this.open
     }
 }
-var alertPopup = new AlertPopup(document.querySelector("#alert-popup"));
+export var alertPopup = new AlertPopup(document.querySelector("#alert-popup"));
 
 
 // TABLE COMMON
-function _clearTable (table) {
+export function _clearTable (table) {
     var tbody = table.querySelector("tbody");
     while(tbody.hasChildNodes()) {
         tbody.removeChild(tbody.firstChild);
     }
 }
-function _filterTable () {
+export function _filterTable () {
     var filterText = this.filterInput.value.trim().toLowerCase();
     this.table.querySelectorAll("tbody tr").forEach((tr) => {
         if (tr.textContent.toLowerCase().includes(filterText)) {
@@ -148,20 +148,20 @@ function _filterTable () {
 
 // INPUT
 // DECIMAL FILTER
-var validateMoneyInput = function(e) {  
-    var t = e.value;
+export var validateMoneyInput = function(e) {
+    var t = e.target.value;
     t = t.replace(/[^0-9\.\-]+/g, "");
-    e.value = t.indexOf(".") >= 0 ? t.slice(0, t.indexOf(".") + 3) : t;
+    e.target.value = t.indexOf(".") >= 0 ? t.slice(0, t.indexOf(".") + 3) : t;
 }
 
 // VALIDATION
-var positiveTwoDecimalAmountRegexp = new RegExp('^[0-9]+.[0-9]{2}$');
+export var positiveTwoDecimalAmountRegexp = new RegExp('^[0-9]+.[0-9]{2}$');
 
 // DATE UTILS
-function dateToYYYYMMDD (date) {
+export function dateToYYYYMMDD (date) {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
-function YYYYMMDDToDate (dateString) {
+export function YYYYMMDDToDate (dateString) {
     var dateSegments = dateString.split("-");
     var date = new Date(
         parseInt(dateSegments[0]),
@@ -170,14 +170,14 @@ function YYYYMMDDToDate (dateString) {
     );
     return date;
 }
-function nextDate (date) {
+export function nextDate (date) {
     return new Date(
         date.getFullYear(),
         date.getMonth(),
         date.getDate() + 1
     );
 }
-function calcMonthDiff (startDate, endDate) {
+export function calcMonthDiff (startDate, endDate) {
     var monthDiff = 0;
 
     var start = new Date(startDate.getFullYear(), startDate.getMonth());

@@ -1,5 +1,8 @@
+import { _centerPopup, _clearTable, _filterTable, confirmPopup, alertPopup } from './common.js'
+import { pubsub } from './model.js'
+
 // POPUP
-var PartnerPopup = function (mdl, popupElm) {
+export var PartnerPopup = function (mdl, popupElm) {
     this.popup = popupElm;
     this.idInput = this.popup.querySelector(".id-input");
     this.nameInput = this.popup.querySelector(".name-input");
@@ -84,7 +87,7 @@ var PartnerPopup = function (mdl, popupElm) {
 };
 
 // PANEL
-var PartnersPanel = function (mdl, panelElm) {
+export var PartnersPanel = function (mdl, panelElm) {
     this.panel = panelElm;
     this.filterInput = this.panel.querySelector(".filter-input");
     this.addBtn = this.panel.querySelector(".panel-add-btn");

@@ -1,7 +1,12 @@
+import { YYYYMMDDToDate, nextDate, calcMonthDiff } from './common.js'
+
 // event handler
-var pubsub = {
+export var pubsub = {
     _list: [],
     add: function (eventName, callbackFunc) {
+        // if (eventName === "partners_change") {
+        //     console.log(eventName, callbackFunc);
+        // }
         if (!Array.isArray(this._list[eventName])) {
             this._list[eventName] = [];
         }
@@ -268,13 +273,16 @@ function AR (mdl) {
         this.addItemBase(item);
     };
     this.getItemById = _getItemById;
-    this.setItemBase = _setItem(["partner", "type", "amount", "balance", "expirationDate", "cycleAmount", "cyclePaymentType", "startDate", "endDate", "note"], "ar_change");
-    this.setItem = (id, change) => {
-        if (change.type === "Mensualidad") {
-            change.amount = this.calcArAccAmount({change});
-            change.balance = change.amount - this.calcArPaymentsTotal(id);
+    this.setItem = _setItem(["partner", "type", "amount", "balance", "expirationDate", "cycleAmount", "cyclePaymentType", "startDate", "endDate", "note"], "ar_change");
+    this.updateItemBalance = (id) => {
+        var ar = mdl.ar.getItemById(id);
+        if (ar) {
+            if (ar.type === "Mensualidad") {
+                ar.amount = this.calcArAccAmount(ar);
+            }
+            ar.balance = ar.amount - this.calcArPaymentsTotal(id);
+            pubsub.emit("ar_change", { edit: [ ar ] });
         }
-        this.setItemBase(id, change);
     };
     this.removeItemByIdBase = _removeItemById("ar_change");
     this.removeItemById = (id) => {
@@ -338,24 +346,12 @@ function AR (mdl) {
     this.onPaymentsListChange = function (evt) {
         if (evt.add) {
             for (var payment of evt.add) {
-                var arItem = this.getItemById(payment.arId);
-                var newBalance = arItem.balance - payment.amount;
-                newBalance = parseFloat(newBalance.toFixed(2));
-                this.setItem(payment.arId, { balance: newBalance});
+                this.updateItemBalance(payment.arId);
             }
         }
         if (evt.remove) {
             for (var payment of evt.remove) {
-                var arItem = this.getItemById(payment.arId);
-                // si es null es porque no existe entonces no hay nada que recalcular
-                // esto seguramente ocurre porque cuando se borra una ar, posteriormente
-                // se borrarán los pagos asociados, esto a su vez ejecutara este evento,
-                // pero ya no es necesario, ni se puede volver a setear
-                if (arItem) {
-                    var newBalance = arItem.balance + payment.amount;
-                    newBalance = parseFloat(newBalance.toFixed(2));
-                    this.setItem(arItem.id, { balance: newBalance});
-                }
+                this.updateItemBalance(payment.arId);
             }
         }
     };
@@ -421,6 +417,7 @@ function Payment (mdl) {
         getBlankItem: this.getBlankItem,
         addItem: this.addItem,
         getItemById: this.getItemById,
+        getItemsByArId: this.getItemsByArId,
         setItem: this.setItem,
         removeItemById: this.removeItemById,
         removeItemByArId: this.removeItemByArId,
@@ -430,7 +427,7 @@ function Payment (mdl) {
 
 
 // MODEL
-function Mdl (pubsub) {
+export function Mdl (pubsub) {
     this.pubsub = pubsub;
     this.partner = new Partner(this);
     this.ar = new AR(this);
