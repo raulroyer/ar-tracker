@@ -31,20 +31,20 @@ func (a *App) Export(value string) error {
 	fmt.Println(value)
 
 	selection, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		Title: "Select File",
+		Title:           "Select File",
 		DefaultFilename: "cuentas.art",
 		Filters: []runtime.FileFilter{
-			{ DisplayName: "AR-Tracker (*.art)", Pattern: "*.art", },
+			{DisplayName: "AR-Tracker (*.art)", Pattern: "*.art"},
 			// ... more filters for more file types
 		},
 	})
 	if err != nil {
 		return err
 	}
-	
+
 	fmt.Println(selection)
 
-	_ = os.WriteFile(selection, []byte(value), 0644);
+	_ = os.WriteFile(selection, []byte(value), 0644)
 
 	return nil
 }
@@ -53,7 +53,7 @@ func (a *App) Import() (string, error) {
 	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Select File",
 		Filters: []runtime.FileFilter{
-			{ DisplayName: "AR-Tracker (*.art)", Pattern: "*.art", },
+			{DisplayName: "AR-Tracker (*.art)", Pattern: "*.art"},
 			// ... more filters for more file types
 		},
 	})
