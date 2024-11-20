@@ -136,14 +136,23 @@ export function _clearTable (table) {
     }
 }
 export function _filterTable () {
-    var filterText = this.filterInput.value.trim().toLowerCase();
-    this.table.querySelectorAll("tbody tr").forEach((tr) => {
-        if (tr.textContent.toLowerCase().includes(filterText)) {
-            tr.style.display = "table-row";
-        } else {
-            tr.style.display = "none";
+    var filterInputs = this.filterInput.value.trim().toLowerCase().split(' ').filter((val) => { return val !== '' });
+    var trs = this.table.querySelectorAll("tbody tr");
+    for (var tr of trs) {
+        var failed = false;
+        for (var input of filterInputs) {
+            if (!tr.textContent.toLowerCase().includes(input)) {
+                failed = true;
+                break;
+            }
         }
-    });
+
+        if (failed) {
+            tr.style.display = "none";
+        } else {
+            tr.style.display = "table-row";
+        }
+    }
 }
 
 // INPUT
