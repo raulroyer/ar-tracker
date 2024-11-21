@@ -4,7 +4,7 @@ import { ArPanel, ArPopup } from './ar.js'
 import { PaymentsPanel, PaymentPopup } from './payments.js'
 import { PartnersPanel } from './partners.js'
 
-import {Export, Import} from '../../wailsjs/go/main/App';
+import {Export, Import, GetLastFile, ClearLastFile} from '../../wailsjs/go/main/App';
 
 export var mdl = new Mdl(pubsub);
 
@@ -95,6 +95,8 @@ document.querySelector(".new-project-btn").addEventListener("click", () => {
         (response) => {
             if (response === true) {
                 clearProject();
+                ClearLastFile();
+                document.querySelector(".file-path").innerHTML = "";
             }
         },
         {
@@ -150,59 +152,77 @@ document.querySelector(".save-file-btn").addEventListener("click", () => {
         }
     }
 
-
-
     Export(JSON.stringify(output)).then(() => {
-
+        GetLastFile().then((lastFile) => {
+            document.querySelector(".file-path").innerHTML = lastFile;
+        });
     }).catch(() => {
 
     });
 });
 
-document.querySelector(".import-file-btn").addEventListener("click", () => {
-    Import().then((content) => {
-        var input = JSON.parse(content);
-        var fmap = {};
-        for (var field in input.fmap) {
-            fmap[input.fmap[field]] = field;
-        }
+var onImportSuccess = (content) => {
+    var input = JSON.parse(content);
+    var fmap = {};
+    for (var field in input.fmap) {
+        fmap[input.fmap[field]] = field;
+    }
 
-        clearProject();
+    clearProject();
 
-        input.partners = input.partners.sort((a, b) => {
-            return a[input.fmap["id"]] - b[input.fmap["id"]];
-        });
-        for (var partner of input.partners) {
-            let aux = {};
-            for (var field in partner) {
-                aux[fmap[field]] = partner[field];
-            }
-            mdl.partner.addItem(aux);
-        }
-
-        input.ar = input.ar.sort((a, b) => {
-            return a[input.fmap["id"]] - b[input.fmap["id"]];
-        });
-        for (var ar of input.ar) {
-            let aux = {};
-            for (var field in ar) {
-                aux[fmap[field]] = ar[field];
-            }
-            aux.balance = aux.amount;
-            mdl.ar.addItem(aux);
-        }
-
-        input.payments = input.payments.sort((a, b) => {
-            return a[input.fmap["id"]] - b[input.fmap["id"]];
-        });
-        for (var payment of input.payments) {
-            let aux = {};
-            for (var field in payment) {
-                aux[fmap[field]] = payment[field];
-            }
-            mdl.payment.addItem(aux);
-        }
-    }).catch(() => {
-
+    input.partners = input.partners.sort((a, b) => {
+        return a[input.fmap["id"]] - b[input.fmap["id"]];
     });
+
+    for (var partner of input.partners) {
+        let aux = {};
+        for (var field in partner) {
+            aux[fmap[field]] = partner[field];
+        }
+        mdl.partner.addItem(aux);
+    }
+
+    input.ar = input.ar.sort((a, b) => {
+        return a[input.fmap["id"]] - b[input.fmap["id"]];
+    });
+    for (var ar of input.ar) {
+        let aux = {};
+        for (var field in ar) {
+            aux[fmap[field]] = ar[field];
+        }
+        aux.balance = aux.amount;
+        mdl.ar.addItem(aux);
+    }
+
+    input.payments = input.payments.sort((a, b) => {
+        return a[input.fmap["id"]] - b[input.fmap["id"]];
+    });
+    for (var payment of input.payments) {
+        let aux = {};
+        for (var field in payment) {
+            aux[fmap[field]] = payment[field];
+        }
+        mdl.payment.addItem(aux);
+    }
+
+    GetLastFile().then((lastFile) => {
+        document.querySelector(".file-path").innerHTML = lastFile;
+    });
+};
+
+document.querySelector(".import-file-btn").addEventListener("click", () => {
+    Import("").then(onImportSuccess).catch((err) => {
+        console.log(err);
+    });
+});
+
+
+GetLastFile().then((lastFile) => {
+    if (lastFile) {
+        Import(lastFile).then(onImportSuccess).catch((err) => {
+            console.log(err);
+        });
+    }
+}).catch(err => {
+    console.log(err);
 });
